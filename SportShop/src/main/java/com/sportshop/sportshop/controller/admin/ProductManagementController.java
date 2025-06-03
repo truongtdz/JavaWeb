@@ -4,6 +4,8 @@ import com.sportshop.sportshop.dto.request.ImageRequest;
 import com.sportshop.sportshop.dto.request.ProductRequest;
 import com.sportshop.sportshop.dto.response.ProductResponse;
 import com.sportshop.sportshop.service.*;
+import com.sportshop.sportshop.utils.upload.ExcelProductHelper;
+import com.sportshop.sportshop.utils.upload.ProductExcelService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -23,12 +25,14 @@ public class ProductManagementController {
     private final BrandService brandService;
     private final CategoryService categoryService;
     private final ImageService imageService;
+    private final ProductExcelService excelService;
 
-    public ProductManagementController(ProductService productService, BrandService brandService, CategoryService categoryService, ImageService imageService) {
+    public ProductManagementController(ProductService productService, BrandService brandService, CategoryService categoryService, ImageService imageService, ProductExcelService excelService) {
         this.productService = productService;
         this.brandService = brandService;
         this.categoryService = categoryService;
         this.imageService = imageService;
+        this.excelService = excelService;
     }
 
     // View all product
@@ -144,10 +148,24 @@ public class ProductManagementController {
     public ResponseEntity<Void> deleteImageProduct(@PathVariable Long imageId) {
         try {
             imageService.deleteImage(imageId);
-            return ResponseEntity.noContent().build(); // 204 No Content
+            return ResponseEntity.noContent().build();
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build(); // 500 Internal Server Error
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
+    @PostMapping("/add/upload")
+    public ResponseEntity<?> uploadExcelFile(@RequestParam("file") MultipartFile file) {
+        if (!ExcelProductHelper.hasExcelFormat(file)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Vui lòng tải lên file Excel hợp lệ (.xlsx)");
+        }
+
+        try {
+            excelService.importProductsFromExcel(file);
+            return ResponseEntity.ok("Tải lên thành công!");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Tải lên thất bại: " + e.getMessage());
+        }
+    }
 }

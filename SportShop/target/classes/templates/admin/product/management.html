@@ -513,54 +513,43 @@
 </script>
 
 <script>
-  let currentSortField = 'id';
-  let currentSortDir = 'asc';
+    // Đọc tham số từ URL
+    let urlParams = new URLSearchParams(window.location.search);
+    let sortField = urlParams.get('sortField') || 'id';
+    let sortDir = urlParams.get('sortDir') || 'asc';
 
-  function sortTable(field) {
-    if (field === currentSortField) {
-      currentSortDir = currentSortDir === 'asc' ? 'desc' : 'asc';
-    } else {
-      currentSortField = field;
-      currentSortDir = 'asc';
+    function sortTable(field) {
+      // Nếu click lại đúng cột cũ thì đảo chiều
+      if (field === sortField) {
+        sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+      } else {
+        sortField = field;
+        sortDir = 'asc';
+      }
+
+      // Giữ nguyên page, size (nếu có)
+      const page = urlParams.get('page') || 0;
+      const size = urlParams.get('size') || 10;
+
+      // Chuyển hướng trang mới với thông tin sắp xếp
+      window.location.href = `/admin/product?page=${page}&size=${size}&sortField=${sortField}&sortDir=${sortDir}`;
     }
 
-    const currentPage = new URLSearchParams(window.location.search).get('page') || 0;
-    window.location.href = `/admin/product?page=${currentPage}&sortField=${currentSortField}&sortDir=${currentSortDir}`;
-  }
+    window.onload = function() {
+      // Map icon tương ứng với asc/desc
+      const iconMap = {
+        'asc': '↑',
+        'desc': '↓'
+      };
+
+      // Gán icon cho đúng cột đang được sort
+      const sortIconId = `sort-icon-${sortField}`;
+      const iconElement = document.getElementById(sortIconId);
+      if (iconElement) {
+        iconElement.innerText = iconMap[sortDir];
+      }
+    }
 </script>
-
-<script>
-  let urlParams = new URLSearchParams(window.location.search);
-  let sortField = urlParams.get('sortField') || 'id';
-  let sortDir = urlParams.get('sortDir') || 'asc';
-
-  function sortTable(field) {
-    if (field === sortField) {
-      sortDir = sortDir === 'asc' ? 'desc' : 'asc';
-    } else {
-      sortField = field;
-      sortDir = 'asc';
-    }
-
-    const page = urlParams.get('page') || 0;
-    const size = urlParams.get('size') || 10;
-    window.location.href = `/admin/product?page=${page}&size=${size}&sortField=${sortField}&sortDir=${sortDir}`;
-  }
-
-  // Gọi sau khi trang load để hiển thị icon sort
-  window.onload = function() {
-    const iconMap = {
-      'asc': '↑',
-      'desc': '↓'
-    };
-    const sortIconId = `sort-icon-${sortField}`;
-    const iconElement = document.getElementById(sortIconId);
-    if (iconElement) {
-      iconElement.innerText = iconMap[sortDir];
-    }
-  }
-</script>
-
 
 </body>
 </html>

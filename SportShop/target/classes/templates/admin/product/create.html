@@ -445,6 +445,19 @@
     <a href="/admin/product" class="back-btn">
       <i class="fas fa-arrow-left"></i> Quay lại
     </a>
+
+    <form
+            th:action="@{/admin/product/add/upload}"
+            method="post"
+            enctype="multipart/form-data"
+            style="display: flex; align-items: center; gap: 5px;"
+    >
+      <label for="excelFile" class="upload-btn" style="cursor: pointer;">
+        <i class="fas fa-file-excel"></i> Upload Excel
+      </label>
+      <input type="file" id="excelFile" name="file" accept=".xlsx,.xls"
+             style="display: none;" onchange="this.form.submit()" required />
+    </form>
   </div>
 
   <div class="form-container">

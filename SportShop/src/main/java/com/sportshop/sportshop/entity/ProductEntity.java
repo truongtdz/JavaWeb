@@ -31,7 +31,7 @@ public class ProductEntity {
     Long discount;
 
     @Column(name = "description", columnDefinition = "MEDIUMTEXT")
-    private String description;
+    String description;
 
     @Column(name = "color")
     String color;
