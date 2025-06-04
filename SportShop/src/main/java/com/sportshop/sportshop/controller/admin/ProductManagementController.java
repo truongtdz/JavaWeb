@@ -52,7 +52,12 @@ public class ProductManagementController {
         mav.addObject("sortField", sortField);
         mav.addObject("sortDir", sortDir);
         mav.addObject("reverseSortDir", sortDir.equals("asc") ? "desc" : "asc");
-    
+
+        mav.addObject("newProduct",  new ProductRequest());
+        mav.addObject("updateProduct",  new ProductRequest());
+        mav.addObject("categories", categoryService.getAllCategory());
+        mav.addObject("brands", brandService.getAllBrand());
+
         return mav;
     }
 
@@ -68,16 +73,6 @@ public class ProductManagementController {
                 .addObject("newImage", new ImageRequest());
     }
 
-    
-    // Create product
-    @GetMapping("/create")
-    public ModelAndView createProduct(){
-        return new ModelAndView("/admin/product/create")
-                    .addObject("newProduct",  new ProductRequest())
-                    .addObject("categories", categoryService.getAllCategory())
-                    .addObject("brands", brandService.getAllBrand());
-    }
-
     @PostMapping("/create")
     public ModelAndView createProduct(@ModelAttribute("newProduct") ProductRequest request,
                                 @RequestParam("files") List<MultipartFile> files
@@ -90,11 +85,9 @@ public class ProductManagementController {
             model.addAttribute("notification", "Fail");
             model.addAttribute("message", e.getMessage());
         }
-        return new ModelAndView("/admin/product/management")
-                    .addObject("products", productService.getAllProductsPaginated(0,10, "id", "asc"));
+        return new ModelAndView("/admin/product/notification");
     }
 
-    // Update Product
     @GetMapping("/update/{productId}")
     public ModelAndView updateProduct(@PathVariable Long productId){
         return new ModelAndView("/admin/product/update")
@@ -113,9 +106,7 @@ public class ProductManagementController {
             model.addAttribute("notification", "Fail");
             model.addAttribute("message", e.getMessage());
         }
-        return new ModelAndView("/admin/product/management")
-                    .addObject("products", productService.getAllProductsPaginated(0,10, "id", "asc"));
-   
+        return new ModelAndView("/admin/product/notification");
     }
 
     //Delete product
