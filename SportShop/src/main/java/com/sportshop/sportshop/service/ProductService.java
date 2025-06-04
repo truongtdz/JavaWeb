@@ -17,6 +17,8 @@
         // View all product
         Page<ProductResponse> getAllProductsPaginated(int page, int size, String sortField, String sortDir);
 
+        Page<ProductResponse> getAllProductsDeleted(int page, int size, String sortField, String sortDir);
+
         // View list product sale
         public List<ProductResponse> getProductSale();
 
@@ -31,6 +33,9 @@
 
         // Update Product
         public ProductResponse updateProduct(Long productId, ProductRequest productRequest);
+
+        // Update Product
+        public ProductResponse restoreProduct(Long productId);
 
         // Delete Product
         public void deleteProduct(Long productId);

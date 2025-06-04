@@ -58,6 +58,18 @@ public class ProductServiceImpl implements ProductService {
         return entities.map(productMapper::toProductResponse);
     }
 
+    // View all product
+    @Override
+    public Page<ProductResponse> getAllProductsDeleted(int page, int size, String sortField, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase("asc") ?
+                Sort.by(sortField).ascending() :
+                Sort.by(sortField).descending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<ProductEntity> entities = productRepository.findByStatus(StatusEnum.Closed, pageable);
+        return entities.map(productMapper::toProductResponse);
+    }
+
 
 
     @Override
@@ -146,6 +158,15 @@ public class ProductServiceImpl implements ProductService {
         productRepository.save(updatedProduct);
 
         return productMapper.toProductResponse(updatedProduct);
+    }
+
+    @Override
+    public ProductResponse restoreProduct(Long productId) {
+        ProductEntity product = productRepository.findByIdAndStatus(productId, StatusEnum.Closed);
+
+        product.setStatus(StatusEnum.Active);
+
+        return productMapper.toProductResponse(productRepository.save(product));
     }
 
     // Delete Product

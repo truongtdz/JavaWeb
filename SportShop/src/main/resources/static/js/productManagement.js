@@ -39,6 +39,48 @@ document.addEventListener('keydown', function(event) {
     }
 });
 
+function toggleProductView() {
+    const select = document.getElementById('productViewSelect');
+    const activeContainer = document.getElementById('activeProductsContainer');
+    const deletedContainer = document.getElementById('deletedProductsContainer');
+
+    if (select.value === 'active') {
+        activeContainer.classList.remove('hidden');
+        deletedContainer.classList.add('hidden');
+    } else {
+        activeContainer.classList.add('hidden');
+        deletedContainer.classList.remove('hidden');
+    }
+}
+
+function sortDeletedTable(field) {
+    // Logic tương tự sortTable nhưng cho deleted products
+    console.log('Sorting deleted products by:', field);
+    // Implement sorting logic here
+}
+
+function restoreProduct(productId) {
+    if (confirm("Bạn có chắc chắn muốn khôi phục sản phẩm này?")) {
+            $.ajax({
+                url: "/admin/product/restore/" + productId,
+                type: "POST",
+                success: function (result) {
+                    showNotification("Khôi phục sản phẩm thành công!", "success");
+                    setTimeout(() => {
+                        window.location.reload(); // Reload trang để cập nhật danh sách
+                    }, 1000);
+                },
+                error: function (xhr, status, error) {
+                    let errorMessage = "Có lỗi xảy ra khi khôi phục sản phẩm!";
+                    if (xhr.responseText) {
+                        errorMessage = xhr.responseText;
+                    }
+                    showNotification(errorMessage, "error");
+                }
+            });
+        }
+}
+
 function loadExistingImages(images) {
     const previewGrid = document.getElementById('updateImagePreviewGrid');
     previewGrid.innerHTML = '';
@@ -281,7 +323,7 @@ function deleteProduct(productId) {
             success: function (result) {
                 showNotification("Xóa sản phẩm thành công!", "success");
                 setTimeout(() => {
-                    window.location.href = "/admin/product";
+                    window.location.reload(); // Reload trang để cập nhật danh sách
                 }, 1000);
             },
             error: function (xhr, status, error) {

@@ -35,6 +35,12 @@
         <div class="header">
             <h1>Quản Lý Sản Phẩm</h1>
             <div class="header-actions">
+                <div class="product-view-selector">
+                    <select id="productViewSelect" onchange="toggleProductView()">
+                        <option value="active">Sản phẩm đang hoạt động</option>
+                        <option value="deleted">Sản phẩm đã xóa gần đây</option>
+                    </select>
+                </div>
                 <!-- Upload Excel Button -->
                 <form
                         th:action="@{/admin/product/add/upload}"
@@ -43,7 +49,7 @@
                         style="display: flex; align-items: center; margin: 0;"
                 >
                     <label for="excelFile" class="upload-excel-btn" style="cursor: pointer; margin: 0;">
-                        <i class="fas fa-file-excel"></i> Upload Excel
+                        <i class="fas fa-file-excel"></i> Tạo qua Excel
                     </label>
                     <input type="file" id="excelFile" name="file" accept=".xlsx,.xls"
                            style="display: none;" onchange="this.form.submit()" />
@@ -66,83 +72,151 @@
             <i class="fas fa-check-circle"></i>
             <span th:text="${message}"></span>
         </div>
+        <div id="activeProductsContainer" class="table-container">
+            <table>
+                <thead>
+                <tr>
+                    <th>
+                        <a href="#" class="sortable-link" onclick="sortTable('id')">
+                            Mã sản phẩm
+                            <span id="sort-icon-id"></span>
+                        </a>
+                    </th>
+                    <th>
+                        <a href="#" class="sortable-link" onclick="sortTable('name')">
+                            Tên sản phẩm
+                            <span id="sort-icon-name"></span>
+                        </a>
+                    </th>
+                    <th>
+                        <a href="#" class="sortable-link" onclick="sortTable('quantity')">
+                            Số lượng trong kho
+                            <span id="sort-icon-quantity"></span>
+                        </a>
+                    </th>
+                    <th>
+                        <a href="#" class="sortable-link" onclick="sortTable('createDate')">
+                            Ngày tạo
+                            <span id="sort-icon-createDate"></span>
+                        </a>
+                    </th>
+                    <th>Thao tác</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="product : ${products}">
+                    <td th:text="${product.id}"></td>
+                    <td th:text="${product.name}"></td>
+                    <td th:text="${product.quantity}"></td>
+                    <td th:text="${product.createDate}"></td>
+                    <td>
+                        <a
+                                th:href="@{/admin/product/{id}(id=${product.id})}"
+                                class="action-btn view-btn"
+                        >
+                            <i class="fas fa-eye"></i> Xem
+                        </a>
+                        <a
+                                class="action-btn btn btn-warning"
+                                th:href="@{'/admin/product/update/' + ${product.id}}"
+                        >
+                            <i class="fas fa-edit"></i> Sửa
+                        </a>
+                        <button
+                                type="button"
+                                class="action-btn btn-danger"
+                                th:onclick="'deleteProduct(' + ${product.id} + ')'"
+                        >
+                            <i class="fas fa-trash"></i> Xóa
+                        </button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
 
-        <table>
-            <thead>
-            <tr>
-                <th>
-                    <a href="#" class="sortable-link" onclick="sortTable('id')">
-                        Mã sản phẩm
-                        <span id="sort-icon-id"></span>
-                    </a>
-                </th>
-                <th>
-                    <a href="#" class="sortable-link" onclick="sortTable('name')">
-                        Tên sản phẩm
-                        <span id="sort-icon-name"></span>
-                    </a>
-                </th>
-                <th>
-                    <a href="#" class="sortable-link" onclick="sortTable('quantity')">
-                        Số lượng trong kho
-                        <span id="sort-icon-quantity"></span>
-                    </a>
-                </th>
-                <th>
-                    <a href="#" class="sortable-link" onclick="sortTable('createDate')">
-                        Ngày tạo
-                        <span id="sort-icon-createDate"></span>
-                    </a>
-                </th>
-
-                <th>Thao tác</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="product : ${products}">
-                <td th:text="${product.id}"></td>
-                <td th:text="${product.name}"></td>
-                <td th:text="${product.quantity}"></td>
-                <td th:text="${product.createDate}"></td>
-                <td>
-                    <a
-                            th:href="@{/admin/product/{id}(id=${product.id})}"
-                            class="action-btn view-btn"
-                    >
-                        <i class="fas fa-eye"></i> Xem
-                    </a>
-                    <a
-                            class="action-btn btn btn-warning"
-                            th:href="@{'/admin/product/update/' + ${product.id}}"
-                    >
-                        <i class="fas fa-edit"></i> Sửa
-                    </a>
-                    <button
-                            type="button"
-                            class="action-btn btn-danger"
-                            th:onclick="'deleteProduct(' + ${product.id} + ')'"
-                    >
-                        <i class="fas fa-trash"></i> Xóa
-                    </button>
-                </td>
-            </tr>
-            </tbody>
-        </table>
-
-        <div class="pagination">
-            <ul>
-                <li th:if="${productPage.hasPrevious()}">
-                    <a th:href="@{/admin/product(page=${productPage.number - 1})}">« Trước</a>
-                </li>
-                <li th:each="i : ${#numbers.sequence(0, productPage.totalPages - 1)}"
-                    th:classappend="${i == productPage.number} ? 'active'">
-                    <a th:href="@{/admin/product(page=${i})}" th:text="${i + 1}"></a>
-                </li>
-                <li th:if="${productPage.hasNext()}">
-                    <a th:href="@{/admin/product(page=${productPage.number + 1})}">Tiếp »</a>
-                </li>
-            </ul>
+            <div class="pagination">
+                <ul>
+                    <li th:if="${productPage.hasPrevious()}">
+                        <a th:href="@{/admin/product(page=${productPage.number - 1})}">« Trước</a>
+                    </li>
+                    <li th:each="i : ${#numbers.sequence(0, productPage.totalPages - 1)}"
+                        th:classappend="${i == productPage.number} ? 'active'">
+                        <a th:href="@{/admin/product(page=${i})}" th:text="${i + 1}"></a>
+                    </li>
+                    <li th:if="${productPage.hasNext()}">
+                        <a th:href="@{/admin/product(page=${productPage.number + 1})}">Tiếp »</a>
+                    </li>
+                </ul>
+            </div>
         </div>
+
+        <!-- Table cho sản phẩm đã xóa -->
+        <div id="deletedProductsContainer" class="table-container hidden">
+            <table>
+                <thead>
+                <tr>
+                    <th>
+                        <a href="#" class="sortable-link" onclick="sortDeletedTable('id')">
+                            Mã sản phẩm
+                            <span id="sort-icon-deleted-id"></span>
+                        </a>
+                    </th>
+                    <th>
+                        <a href="#" class="sortable-link" onclick="sortDeletedTable('name')">
+                            Tên sản phẩm
+                            <span id="sort-icon-deleted-name"></span>
+                        </a>
+                    </th>
+                    <th>
+                        <a href="#" class="sortable-link" onclick="sortDeletedTable('quantity')">
+                            Số lượng trong kho
+                            <span id="sort-icon-deleted-quantity"></span>
+                        </a>
+                    </th>
+                    <th>
+                        <a href="#" class="sortable-link" onclick="sortDeletedTable('createDate')">
+                            Ngày tạo
+                            <span id="sort-icon-deleted-createDate"></span>
+                        </a>
+                    </th>
+                    <th>Thao tác</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="productDeleted : ${productsDeleted}">
+                    <td th:text="${productDeleted.id}"></td>
+                    <td th:text="${productDeleted.name}"></td>
+                    <td th:text="${productDeleted.quantity}"></td>
+                    <td th:text="${productDeleted.createDate}"></td>
+                    <td>
+                        <button
+                                type="button"
+                                class="action-btn restore-btn"
+                                th:onclick="'restoreProduct(' + ${productDeleted.id} + ')'"
+                        >
+                            <i class="fas fa-undo"></i> Khôi phục
+                        </button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <div class="pagination">
+                <ul>
+                    <li th:if="${productDeletedPage.hasPrevious()}">
+                        <a th:href="@{/admin/product(page=${productDeletedPage.number - 1})}">« Trước</a>
+                    </li>
+                    <li th:each="i : ${#numbers.sequence(0, productDeletedPage.totalPages - 1)}"
+                        th:classappend="${i == productDeletedPage.number} ? 'active'">
+                        <a th:href="@{/admin/product(page=${i})}" th:text="${i + 1}"></a>
+                    </li>
+                    <li th:if="${productDeletedPage.hasNext()}">
+                        <a th:href="@{/admin/product(page=${productDeletedPage.number + 1})}">Tiếp »</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
     </div>
 </div>
 

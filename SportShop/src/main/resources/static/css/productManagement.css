@@ -57,6 +57,45 @@
           gap: 15px;
           align-items: center;
         }
+        <style>
+        .product-view-selector {
+            margin-left: 15px;
+        }
+
+        .product-view-selector select {
+            padding: 12px 20px;
+            border-radius: 8px;
+            border: 2px solid #e2e8f0;
+            background: white;
+            color: #333;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 200px;
+        }
+
+        .product-view-selector select:focus {
+            border-color: #4b6cb7;
+            box-shadow: 0 0 0 3px rgba(75, 108, 183, 0.1);
+            outline: none;
+        }
+
+        .product-view-selector select:hover {
+            border-color: #4b6cb7;
+        }
+
+        .table-container {
+            display: block;
+        }
+
+        .table-container.hidden {
+            display: none;
+        }
+
+        .restore-btn {
+            background: var(--warning-gradient);
+        }
 
         /* Upload Excel Button */
         .upload-excel-btn {
@@ -218,6 +257,10 @@
 
         .btn-danger {
           background: var(--danger-gradient);
+        }
+
+        .restore-btn {
+          background: linear-gradient(45deg, #f39c12, #e67e22);
         }
 
         .action-btn:hover {

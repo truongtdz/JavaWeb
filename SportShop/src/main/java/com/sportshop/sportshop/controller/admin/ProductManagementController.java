@@ -6,7 +6,6 @@ import com.sportshop.sportshop.dto.response.ProductResponse;
 import com.sportshop.sportshop.service.*;
 import com.sportshop.sportshop.utils.upload.ExcelProductHelper;
 import com.sportshop.sportshop.utils.upload.ProductExcelService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,19 +41,21 @@ public class ProductManagementController {
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "id") String sortField,
             @RequestParam(defaultValue = "asc") String sortDir) {
-    
+
         Page<ProductResponse> productPage = productService.getAllProductsPaginated(page, size, sortField, sortDir);
+        Page<ProductResponse> productsDeletedPage = productService.getAllProductsDeleted(page, size, sortField, sortDir);
         ModelAndView mav = new ModelAndView("/admin/product/management");
-    
+
         mav.addObject("productPage", productPage);
         mav.addObject("products", productPage.getContent());
+        mav.addObject("productDeletedPage", productsDeletedPage);
+        mav.addObject("productsDeleted", productsDeletedPage.getContent());
 
         mav.addObject("sortField", sortField);
         mav.addObject("sortDir", sortDir);
         mav.addObject("reverseSortDir", sortDir.equals("asc") ? "desc" : "asc");
 
         mav.addObject("newProduct",  new ProductRequest());
-        mav.addObject("updateProduct",  new ProductRequest());
         mav.addObject("categories", categoryService.getAllCategory());
         mav.addObject("brands", brandService.getAllBrand());
 
@@ -109,17 +110,29 @@ public class ProductManagementController {
         return new ModelAndView("/admin/product/notification");
     }
 
+    @PostMapping("/restore/{productId}")
+    public ModelAndView restoreProduct(@PathVariable Long productId, Model model){
+        try{
+            productService.restoreProduct(productId);
+            model.addAttribute("notification", "Success");
+        } catch (Exception e) {
+            model.addAttribute("notification", "Fail");
+            model.addAttribute("message", e.getMessage());
+        }
+        return new ModelAndView("/admin/product/notification");
+    }
+
     //Delete product
     @DeleteMapping("/delete/{productId}")
     public ModelAndView deleteProduct(@PathVariable Long productId, Model model){
         try{
             productService.deleteProduct(productId);
+            model.addAttribute("notification", "Success");
         } catch (Exception e) {
-            System.out.println(e);
+            model.addAttribute("notification", "Fail");
+            model.addAttribute("message", e.getMessage());
         }
-        return new ModelAndView("/admin/product/management")
-                    .addObject("products", productService.getAllProductsPaginated(0,10, "id", "asc"));
-   
+        return new ModelAndView("/admin/product/notification");
     }
 
     // Add image
