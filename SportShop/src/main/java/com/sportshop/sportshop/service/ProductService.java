@@ -14,7 +14,11 @@
     public interface ProductService {
         int countProduct();
 
-        Page<ProductResponse> getAllProductsPaginated(int page, int size, String sortField, String sortDir, StatusEnum status);
+        Page<ProductResponse> getAllProductsPaginated(
+                int page, int size,
+                String sortField, String sortDir,
+                String name, StatusEnum status
+        );
 
         ProductResponse getProductById(Long productId);
 

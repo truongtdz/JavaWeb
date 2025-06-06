@@ -98,14 +98,6 @@ document.addEventListener('keydown', function(event) {
     }
 });
 
-
-
-function sortDeletedTable(field) {
-    // Logic tương tự sortTable nhưng cho deleted products
-    console.log('Sorting deleted products by:', field);
-    // Implement sorting logic here
-}
-
 function restoreProduct(productId) {
     if (confirm("Bạn có chắc chắn muốn khôi phục sản phẩm này?")) {
             $.ajax({
@@ -424,9 +416,50 @@ function sortTable(field) {
     // Keep current page and size
     const page = urlParams.get('page') || 0;
     const size = urlParams.get('size') || 10;
+    const name = urlParams.get('name') || '';
 
     // Redirect with new sorting parameters
-    window.location.href = `/admin/product?page=${page}&size=${size}&sortField=${sortField}&sortDir=${sortDir}`;
+    const params = new URLSearchParams({
+        page: page,
+        size: size,
+        sortField: sortField,
+        sortDir: sortDir
+    });
+
+    if (name) {
+        params.append('name', name);
+    }
+
+    window.location.href = `/admin/product?${params.toString()}`;
+}
+
+function sortDeletedTable(field) {
+    // If clicking the same column, toggle direction
+    if (field === sortField) {
+        sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+    } else {
+        sortField = field;
+        sortDir = 'asc';
+    }
+
+    // Keep current page and size
+    const page = urlParams.get('page') || 0;
+    const size = urlParams.get('size') || 10;
+    const name = urlParams.get('name') || '';
+
+    // Redirect with new sorting parameters
+    const params = new URLSearchParams({
+        page: page,
+        size: size,
+        sortField: sortField,
+        sortDir: sortDir
+    });
+
+    if (name) {
+        params.append('name', name);
+    }
+
+    window.location.href = `/admin/product?${params.toString()}`;
 }
 
 // Form validation
@@ -484,6 +517,106 @@ function validateForm() {
     }
 
     return isValid;
+}
+
+// Hàm sao chép sản phẩm
+function copyProduct(productId) {
+    // Tìm row chứa sản phẩm theo ID
+    const productRow = Array.from(document.querySelectorAll('#activeProductsContainer tbody tr')).find(row => {
+        const firstCell = row.querySelector('td:first-child');
+        return firstCell && firstCell.textContent.trim() === productId.toString();
+    });
+
+    if (!productRow) {
+        showNotification('Không tìm thấy sản phẩm!', 'error');
+        return;
+    }
+
+    // Lấy thông tin từ các cell trong row
+    const cells = productRow.querySelectorAll('td');
+
+    if (cells.length < 9) {
+        showNotification('Dữ liệu sản phẩm không đầy đủ!', 'error');
+        return;
+    }
+
+    // Lấy dữ liệu từ các cell (theo thứ tự trong bảng)
+    const productData = {
+        id: cells[0].textContent.trim(),
+        brandName: cells[1].textContent.trim(),
+        categoryName: cells[2].textContent.trim(),
+        name: cells[3].textContent.trim(),
+        color: cells[4].textContent.trim(),
+        price: cells[5].textContent.trim(),
+        discount: cells[6].textContent.trim(),
+        quantity: cells[7].textContent.trim(),
+        description: cells[8].textContent.trim()
+    };
+
+    // Mở modal tạo sản phẩm
+    openCreateModal();
+
+    // Đợi modal hiển thị hoàn toàn
+    setTimeout(() => {
+        fillProductForm(productData);
+    }, 200);
+}
+
+// Hàm điền thông tin vào form
+function fillProductForm(productData) {
+    try {
+        // Điền các trường input text
+        const nameInput = document.querySelector('#createProductForm input[name="name"]');
+        if (nameInput) nameInput.value = productData.name + ' (Copy)';
+
+        const colorInput = document.querySelector('#createProductForm input[name="color"]');
+        if (colorInput) colorInput.value = productData.color;
+
+        const priceInput = document.querySelector('#createProductForm input[name="price"]');
+        if (priceInput) priceInput.value = productData.price;
+
+        const discountInput = document.querySelector('#createProductForm input[name="discount"]');
+        if (discountInput) discountInput.value = productData.discount;
+
+        const quantityInput = document.querySelector('#createProductForm input[name="quantity"]');
+        if (quantityInput) quantityInput.value = productData.quantity;
+
+        const descriptionInput = document.querySelector('#createProductForm textarea[name="description"]');
+        if (descriptionInput) descriptionInput.value = productData.description;
+
+        // Tìm và chọn thương hiệu
+        const brandSelect = document.querySelector('#createProductForm select[name="brandId"]');
+        if (brandSelect) {
+            const brandOptions = brandSelect.querySelectorAll('option');
+            for (let option of brandOptions) {
+                if (option.textContent.trim() === productData.brandName) {
+                    option.selected = true;
+                    brandSelect.value = option.value;
+                    break;
+                }
+            }
+        }
+
+        // Tìm và chọn danh mục
+        const categorySelect = document.querySelector('#createProductForm select[name="categoryId"]');
+        if (categorySelect) {
+            const categoryOptions = categorySelect.querySelectorAll('option');
+            for (let option of categoryOptions) {
+                if (option.textContent.trim() === productData.categoryName) {
+                    option.selected = true;
+                    categorySelect.value = option.value;
+                    break;
+                }
+            }
+        }
+
+        // Hiển thị thông báo thành công
+        showNotification('Đã sao chép thông tin sản phẩm thành công!', 'success');
+
+    } catch (error) {
+        console.error('Lỗi khi điền form:', error);
+        showNotification('Có lỗi xảy ra khi sao chép thông tin sản phẩm!', 'error');
+    }
 }
 
 // Initialize page
@@ -562,6 +695,129 @@ window.onload = function() {
         });
     }
 };
+
+function initMergedTable() {
+    // Tạo container cho filter controls
+    const activeContainer = document.getElementById('activeProductsContainer');
+    const deletedContainer = document.getElementById('deletedProductsContainer');
+
+    // Tạo filter controls
+    const filterHTML = `
+        <div class="filter-controls">
+            <label for="statusFilter">Lọc theo trạng thái:</label>
+            <select id="statusFilter" onchange="filterByStatus()">
+                <option value="all">Tất cả</option>
+                <option value="active" selected>Đang hoạt động</option>
+                <option value="deleted">Đã xóa</option>
+            </select>
+        </div>
+    `;
+
+    // Thêm filter vào trước bảng active
+    activeContainer.insertAdjacentHTML('beforebegin', filterHTML);
+
+    // Gộp dữ liệu từ 2 bảng
+    mergeTableData();
+
+    // Ẩn bảng deleted ban đầu
+    deletedContainer.style.display = 'none';
+}
+
+// 3. Function để gộp dữ liệu (paste vào file JS)
+function mergeTableData() {
+    const activeTable = document.querySelector('#activeProductsContainer tbody');
+    const deletedTable = document.querySelector('#deletedProductsContainer tbody');
+
+    // Lấy tất cả rows từ bảng deleted
+    const deletedRows = Array.from(deletedTable.querySelectorAll('tr'));
+
+    // Xử lý từng row deleted để thêm status và action buttons
+    deletedRows.forEach(row => {
+        const cells = row.querySelectorAll('td');
+        if (cells.length > 0) {
+            // Thêm status badge vào cột đầu tiên
+            const firstCell = cells[0];
+            firstCell.innerHTML = `
+                ${firstCell.textContent}
+                <span class="status-badge status-deleted">Đã xóa</span>
+            `;
+
+            // Cập nhật action buttons (giữ nguyên restore và delete buttons)
+            const actionCell = cells[cells.length - 1];
+            // Action cell đã có sẵn restore và delete buttons từ HTML gốc
+
+            // Thêm class để ẩn/hiện row
+            row.classList.add('deleted-row');
+            row.style.display = 'none'; // Ẩn ban đầu
+        }
+    });
+
+    // Thêm status badge cho active rows
+    const activeRows = Array.from(activeTable.querySelectorAll('tr'));
+    activeRows.forEach(row => {
+        const cells = row.querySelectorAll('td');
+        if (cells.length > 0) {
+            const firstCell = cells[0];
+            firstCell.innerHTML = `
+                ${firstCell.textContent}
+                <span class="status-badge status-active">Hoạt động</span>
+            `;
+            row.classList.add('active-row');
+        }
+    });
+
+    // Di chuyển deleted rows vào active table
+    deletedRows.forEach(row => {
+        activeTable.appendChild(row);
+    });
+}
+
+// 4. Function để lọc theo status (paste vào file JS)
+function filterByStatus() {
+    const filter = document.getElementById('statusFilter').value;
+    const activeRows = document.querySelectorAll('.active-row');
+    const deletedRows = document.querySelectorAll('.deleted-row');
+
+    // Ẩn/hiện pagination của bảng deleted
+    const deletedPagination = document.querySelector('#deletedProductsContainer .pagination');
+    const activePagination = document.querySelector('#activeProductsContainer .pagination');
+
+    switch(filter) {
+        case 'all':
+            activeRows.forEach(row => row.style.display = '');
+            deletedRows.forEach(row => row.style.display = '');
+            activePagination.style.display = 'block';
+            if (deletedPagination) deletedPagination.style.display = 'none';
+            break;
+
+        case 'active':
+            activeRows.forEach(row => row.style.display = '');
+            deletedRows.forEach(row => row.style.display = 'none');
+            activePagination.style.display = 'block';
+            if (deletedPagination) deletedPagination.style.display = 'none';
+            break;
+
+        case 'deleted':
+            activeRows.forEach(row => row.style.display = 'none');
+            deletedRows.forEach(row => row.style.display = '');
+            activePagination.style.display = 'none';
+            if (deletedPagination) deletedPagination.style.display = 'block';
+            break;
+    }
+}
+
+// 5. Khởi tạo khi DOM loaded (paste vào cuối file JS)
+document.addEventListener('DOMContentLoaded', function() {
+    // Thêm CSS
+    const style = document.createElement('style');
+    style.textContent = statusCSS;
+    document.head.appendChild(style);
+
+    // Khởi tạo merged table
+    initMergedTable();
+});
+
+
 
 // Auto-save draft functionality (optional) - Remove localStorage usage
 function saveDraft() {

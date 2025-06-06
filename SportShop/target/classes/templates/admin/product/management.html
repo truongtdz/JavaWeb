@@ -54,6 +54,24 @@
         <div class="header">
             <h1>Quản Lý Sản Phẩm</h1>
             <div class="header-actions">
+                <!-- Thêm form tìm kiếm này vào sau <div class="product-view-selector"> và trước form upload Excel -->
+                <form method="get" style="display: flex; align-items: center; margin: 0 10px;">
+                    <div class="search-box">
+                        <input type="text"
+                               name="name"
+                               placeholder="Tìm kiếm sản phẩm..."
+                               th:value="${param.name}"
+                               style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; width: 250px;">
+                        <button type="submit" style="padding: 8px 12px; margin-left: 5px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            <i class="fas fa-search"></i> Tìm
+                        </button>
+                    </div>
+                    <!-- Giữ lại các tham số khác khi tìm kiếm -->
+                    <input type="hidden" name="page" th:value="${param.page ?: 0}">
+                    <input type="hidden" name="size" th:value="${param.size ?: 10}">
+                    <input type="hidden" name="sortField" th:value="${param.sortField ?: 'id'}">
+                    <input type="hidden" name="sortDir" th:value="${param.sortDir ?: 'asc'}">
+                </form>
                 <div class="product-view-selector">
                     <select id="productViewSelect" onchange="toggleProductView()">
                         <option value="active">Sản phẩm đang hoạt động</option>
@@ -200,14 +218,14 @@
             <div class="pagination">
                 <ul>
                     <li th:if="${productPage.hasPrevious()}">
-                        <a th:href="@{/admin/product(page=${productPage.number - 1})}">« Trước</a>
+                        <a th:href="@{/admin/product(page=${productPage.number - 1}, size=${param.size}, sortField=${param.sortField}, sortDir=${param.sortDir}, name=${param.name})}">« Trước</a>
                     </li>
                     <li th:each="i : ${#numbers.sequence(0, productPage.totalPages - 1)}"
                         th:classappend="${i == productPage.number} ? 'active'">
-                        <a th:href="@{/admin/product(page=${i})}" th:text="${i + 1}"></a>
+                        <a th:href="@{/admin/product(page=${i}, size=${param.size}, sortField=${param.sortField}, sortDir=${param.sortDir}, name=${param.name})}" th:text="${i + 1}"></a>
                     </li>
                     <li th:if="${productPage.hasNext()}">
-                        <a th:href="@{/admin/product(page=${productPage.number + 1})}">Tiếp »</a>
+                        <a th:href="@{/admin/product(page=${productPage.number + 1}, size=${param.size}, sortField=${param.sortField}, sortDir=${param.sortDir}, name=${param.name})}">Tiếp »</a>
                     </li>
                 </ul>
             </div>
@@ -310,14 +328,14 @@
             <div class="pagination">
                 <ul>
                     <li th:if="${productDeletedPage.hasPrevious()}">
-                        <a th:href="@{/admin/product(page=${productDeletedPage.number - 1})}">« Trước</a>
+                        <a th:href="@{/admin/product(page=${productDeletedPage.number - 1}, size=${param.size}, sortField=${param.sortField}, sortDir=${param.sortDir}, name=${param.name})}">« Trước</a>
                     </li>
                     <li th:each="i : ${#numbers.sequence(0, productDeletedPage.totalPages - 1)}"
                         th:classappend="${i == productDeletedPage.number} ? 'active'">
-                        <a th:href="@{/admin/product(page=${i})}" th:text="${i + 1}"></a>
+                        <a th:href="@{/admin/product(page=${i}, size=${param.size}, sortField=${param.sortField}, sortDir=${param.sortDir}, name=${param.name})}" th:text="${i + 1}"></a>
                     </li>
                     <li th:if="${productDeletedPage.hasNext()}">
-                        <a th:href="@{/admin/product(page=${productDeletedPage.number + 1})}">Tiếp »</a>
+                        <a th:href="@{/admin/product(page=${productDeletedPage.number + 1}, size=${param.size}, sortField=${param.sortField}, sortDir=${param.sortDir}, name=${param.name})}">Tiếp »</a>
                     </li>
                 </ul>
             </div>

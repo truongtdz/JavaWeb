@@ -41,11 +41,13 @@ public class ProductManagementController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "id") String sortField,
-            @RequestParam(defaultValue = "asc") String sortDir
+            @RequestParam(defaultValue = "asc") String sortDir,
+            @RequestParam(required = false) String name
+
     ) {
 
-        Page<ProductResponse> productPage = productService.getAllProductsPaginated(page, size, sortField, sortDir, StatusEnum.Active);
-        Page<ProductResponse> productsDeletedPage = productService.getAllProductsPaginated(page, size, sortField, sortDir, StatusEnum.Closed);
+        Page<ProductResponse> productPage = productService.getAllProductsPaginated(page, size, sortField, sortDir, name, StatusEnum.Active);
+        Page<ProductResponse> productsDeletedPage = productService.getAllProductsPaginated(page, size, sortField, sortDir, name, StatusEnum.Closed);
         ModelAndView mav = new ModelAndView("/admin/product/management");
 
         mav.addObject("productPage", productPage);

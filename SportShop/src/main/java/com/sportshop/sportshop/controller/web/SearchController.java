@@ -45,7 +45,7 @@ public class SearchController {
     public ModelAndView searchProduct() {
         ModelAndView mav = new ModelAndView("/web/search")
                 .addObject("newSearch", new SearchRequest())
-                .addObject("products", productService.getAllProductsPaginated(0,8, "id", "asc", StatusEnum.Active))
+                .addObject("products", productService.getAllProductsPaginated(0,8, "id", "asc",null, StatusEnum.Active))
                 .addObject("categories", categoryService.getAllCategory())
                 .addObject("brands", brandService.getAllBrand())
                 .addObject("sorts", SortEnum.values());

@@ -25,6 +25,7 @@ public interface ProductRepository extends JpaRepository<ProductEntity, Long>, P
 
     List<ProductEntity> findByNameContainingOrDescriptionContainingAndStatus(String name, String description, StatusEnum status);
 
+    // Thêm 2 methods này vào ProductRepository
     Page<ProductEntity> findByStatus(StatusEnum status, Pageable pageable);
-
+    Page<ProductEntity> findByNameContainingIgnoreCaseAndStatus(String name, StatusEnum status, Pageable pageable);
 }

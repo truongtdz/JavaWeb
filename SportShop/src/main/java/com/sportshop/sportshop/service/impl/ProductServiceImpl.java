@@ -16,7 +16,6 @@ import com.sportshop.sportshop.repository.CategoryRepository;
 import com.sportshop.sportshop.repository.OrderDetailRepository;
 import com.sportshop.sportshop.repository.ProductRepository;
 import com.sportshop.sportshop.service.ProductService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -51,13 +50,27 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Page<ProductResponse> getAllProductsPaginated(int page, int size, String sortField, String sortDir, StatusEnum status) {
+    public Page<ProductResponse> getAllProductsPaginated(
+            int page, int size,
+            String sortField, String sortDir,
+            String name, StatusEnum status
+    ) {
         Sort sort = sortDir.equalsIgnoreCase("asc") ?
                 Sort.by(sortField).ascending() :
                 Sort.by(sortField).descending();
 
         Pageable pageable = PageRequest.of(page, size, sort);
-        Page<ProductEntity> entities = productRepository.findByStatus(status, pageable);
+
+        Page<ProductEntity> entities;
+
+        // Kiểm tra name có giá trị không
+        if (name != null && !name.trim().isEmpty()) {
+            // Có name -> dùng method tìm theo name và status
+            entities = productRepository.findByNameContainingIgnoreCaseAndStatus(name, status, pageable);
+        } else {
+            // Không có name -> chỉ tìm theo status
+            entities = productRepository.findByStatus(status, pageable);
+        }
         return entities.map(productMapper::toProductResponse);
     }
 
