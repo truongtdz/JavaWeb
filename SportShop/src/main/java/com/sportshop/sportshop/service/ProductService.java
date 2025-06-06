@@ -4,6 +4,7 @@
     import com.sportshop.sportshop.dto.request.SearchRequest;
     import com.sportshop.sportshop.dto.response.ProductResponse;
 
+    import com.sportshop.sportshop.enums.StatusEnum;
     import org.springframework.data.domain.Page;
     import org.springframework.stereotype.Service;
 
@@ -11,36 +12,25 @@
 
     @Service
     public interface ProductService {
-        // Count product
-        public int countProduct();
+        int countProduct();
 
-        // View all product
-        Page<ProductResponse> getAllProductsPaginated(int page, int size, String sortField, String sortDir);
+        Page<ProductResponse> getAllProductsPaginated(int page, int size, String sortField, String sortDir, StatusEnum status);
 
-        Page<ProductResponse> getAllProductsDeleted(int page, int size, String sortField, String sortDir);
+        ProductResponse getProductById(Long productId);
 
-        // View list product sale
-        public List<ProductResponse> getProductSale();
+        ProductResponse createProduct(ProductRequest productRequest);
 
-        // View list product the newest
-        public List<ProductResponse> getProductNewest();
+        ProductResponse updateProduct(Long productId, ProductRequest productRequest);
 
-        // View product by ID
-        public ProductResponse getProductById(Long productId);
+        void softDeleteProduct(Long productId);
 
-        // Create product
-        public ProductResponse createProduct(ProductRequest productRequest);
+        ProductResponse restoreProduct(Long productId);
 
-        // Update Product
-        public ProductResponse updateProduct(Long productId, ProductRequest productRequest);
+        void deleteProduct(Long productId);
 
-        // Update Product
-        public ProductResponse restoreProduct(Long productId);
-
-        // Delete Product
-        public void deleteProduct(Long productId);
-
-        // Search Product
         Page<ProductResponse> searchProduct(SearchRequest request, int page, int size);
 
+        List<ProductResponse> getProductSale();
+
+        List<ProductResponse> getProductNewest();
     }

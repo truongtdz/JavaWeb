@@ -3,6 +3,7 @@ package com.sportshop.sportshop.controller.web;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sportshop.sportshop.enums.StatusEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
@@ -44,7 +45,7 @@ public class SearchController {
     public ModelAndView searchProduct() {
         ModelAndView mav = new ModelAndView("/web/search")
                 .addObject("newSearch", new SearchRequest())
-                .addObject("products", productService.getAllProductsPaginated(0,8, "id", "asc"))
+                .addObject("products", productService.getAllProductsPaginated(0,8, "id", "asc", StatusEnum.Active))
                 .addObject("categories", categoryService.getAllCategory())
                 .addObject("brands", brandService.getAllBrand())
                 .addObject("sorts", SortEnum.values());

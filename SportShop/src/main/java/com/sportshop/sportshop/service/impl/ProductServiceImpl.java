@@ -5,6 +5,7 @@ import com.sportshop.sportshop.dto.request.SearchRequest;
 import com.sportshop.sportshop.dto.response.ProductResponse;
 import com.sportshop.sportshop.entity.BrandEntity;
 import com.sportshop.sportshop.entity.CategoryEntity;
+import com.sportshop.sportshop.entity.OrderDetailEntity;
 import com.sportshop.sportshop.entity.ProductEntity;
 import com.sportshop.sportshop.enums.StatusEnum;
 import com.sportshop.sportshop.exception.AppException;
@@ -12,6 +13,7 @@ import com.sportshop.sportshop.exception.ErrorCode;
 import com.sportshop.sportshop.mapper.ProductMapper;
 import com.sportshop.sportshop.repository.BrandRepository;
 import com.sportshop.sportshop.repository.CategoryRepository;
+import com.sportshop.sportshop.repository.OrderDetailRepository;
 import com.sportshop.sportshop.repository.ProductRepository;
 import com.sportshop.sportshop.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,82 +30,42 @@ import java.util.stream.Collectors;
 
 @Service
 public class ProductServiceImpl implements ProductService {
-    @Autowired
-    private ProductRepository productRepository;
+    private final ProductRepository productRepository;
+    private final ProductMapper productMapper;
+    private final BrandRepository brandRepository;
+    private final CategoryRepository categoryRepository;
+    private final OrderDetailRepository orderDetailRepository;
 
-    @Autowired
-    private ProductMapper productMapper;
+    public ProductServiceImpl(ProductRepository productRepository, ProductMapper productMapper, BrandRepository brandRepository, CategoryRepository categoryRepository, OrderDetailRepository orderDetailRepository) {
+        this.productRepository = productRepository;
+        this.productMapper = productMapper;
+        this.brandRepository = brandRepository;
+        this.categoryRepository = categoryRepository;
+        this.orderDetailRepository = orderDetailRepository;
+    }
 
-    @Autowired
-    private BrandRepository brandRepository;
 
-    @Autowired
-    private CategoryRepository categoryRepository;
-
-    // Count product
     @Override
     public int countProduct(){
         return productRepository.findByStatus(StatusEnum.Active).size();
     }
 
-    // View all product
     @Override
-    public Page<ProductResponse> getAllProductsPaginated(int page, int size, String sortField, String sortDir) {
+    public Page<ProductResponse> getAllProductsPaginated(int page, int size, String sortField, String sortDir, StatusEnum status) {
         Sort sort = sortDir.equalsIgnoreCase("asc") ?
                 Sort.by(sortField).ascending() :
                 Sort.by(sortField).descending();
 
         Pageable pageable = PageRequest.of(page, size, sort);
-        Page<ProductEntity> entities = productRepository.findByStatus(StatusEnum.Active, pageable);
+        Page<ProductEntity> entities = productRepository.findByStatus(status, pageable);
         return entities.map(productMapper::toProductResponse);
     }
 
-    // View all product
-    @Override
-    public Page<ProductResponse> getAllProductsDeleted(int page, int size, String sortField, String sortDir) {
-        Sort sort = sortDir.equalsIgnoreCase("asc") ?
-                Sort.by(sortField).ascending() :
-                Sort.by(sortField).descending();
-
-        Pageable pageable = PageRequest.of(page, size, sort);
-        Page<ProductEntity> entities = productRepository.findByStatus(StatusEnum.Closed, pageable);
-        return entities.map(productMapper::toProductResponse);
-    }
-
-
-
-    @Override
-    public List<ProductResponse> getProductSale() {
-        // Lấy và lọc các sản phẩm có giảm giá (discount > 0) trước khi chuyển đổi
-        List<ProductResponse> products = productRepository.findByStatus(StatusEnum.Active).stream()
-                .map(productMapper::toProductResponse)   // Chuyển đổi ProductEntity thành ProductResponse
-                .sorted(Comparator.comparing(ProductResponse::getDiscount).reversed())  // Sắp xếp theo discount từ cao đến thấp
-                .limit(10)  // Lấy 10 sản phẩm giảm giá nhiều nhất
-                .collect(Collectors.toList());  // Thu thập kết quả vào danh sách
-
-        return products;  // Trả về danh sách sản phẩm giảm giá
-    }
-
-
-    @Override
-    public List<ProductResponse> getProductNewest() {
-        List<ProductResponse> products = productRepository.findByStatus(StatusEnum.Active).stream()
-                .map(productMapper::toProductResponse)   // Chuyển đổi ProductEntity thành ProductResponse
-                .sorted(Comparator.comparing(ProductResponse::getCreateDate).reversed())  // Sắp xếp theo ngày tạo từ mới đến cũ
-                .limit(10)  // Lấy 10 sản phẩm mới nhất
-                .collect(Collectors.toList());  // Thu thập kết quả vào danh sách
-
-        return products;  // Trả về danh sách sản phẩm mới nhất
-    }
-
-
-    // View product by ID
     @Override
     public ProductResponse getProductById(Long productId) {
         return productMapper.toProductResponse(productRepository.findByIdAndStatus(productId, StatusEnum.Active));
     }
 
-    // Create product
     @Override
     public ProductResponse createProduct(ProductRequest productRequest) {
         if(productRepository.existsByNameAndStatus(productRequest.getName(), StatusEnum.Active)){
@@ -114,18 +76,15 @@ public class ProductServiceImpl implements ProductService {
         newProduct.setCreateDate(new Date());
         newProduct.setStatus(StatusEnum.Active);
 
-        // Tìm BrandEntity từ brandId
         BrandEntity brand = brandRepository.getBrandById(productRequest.getBrandId());
         newProduct.setBrand(brand);
 
-        // Tìm CategoryEntity từ categoryId
         CategoryEntity category = categoryRepository.getCategoryById(productRequest.getCategoryId());
         newProduct.setCategory(category);
 
         return productMapper.toProductResponse(productRepository.save(newProduct));
     }
 
-    // Update Product
     @Override
     public ProductResponse updateProduct(Long productId, ProductRequest request) {
         if(productRepository.existsByNameAndStatus(request.getName(), StatusEnum.Active)){
@@ -169,14 +128,25 @@ public class ProductServiceImpl implements ProductService {
         return productMapper.toProductResponse(productRepository.save(product));
     }
 
-    // Delete Product
     @Override
-    public void deleteProduct(Long productId) {
+    public void softDeleteProduct(Long productId) {
         ProductEntity product = productRepository.findByIdAndStatus(productId, StatusEnum.Active);
         
         product.setStatus(StatusEnum.Closed);
 
         productRepository.save(product);
+    }
+
+    @Override
+    public void deleteProduct(Long productId) {
+        List<OrderDetailEntity> orderDetails = orderDetailRepository.findByProductId(productId)
+                .stream()
+                .peek(od -> od.setProduct(null))
+                .toList();
+
+        orderDetailRepository.saveAll(orderDetails);
+
+        productRepository.deleteById(productId);
     }
 
     @Override
@@ -186,5 +156,26 @@ public class ProductServiceImpl implements ProductService {
         return entities.map(productMapper::toProductResponse);
     }
 
+    @Override
+    public List<ProductResponse> getProductSale() {
+        List<ProductResponse> products = productRepository.findByStatus(StatusEnum.Active).stream()
+                .map(productMapper::toProductResponse)
+                .sorted(Comparator.comparing(ProductResponse::getDiscount).reversed())
+                .limit(10)
+                .collect(Collectors.toList());
+
+        return products;
+    }
+
+    @Override
+    public List<ProductResponse> getProductNewest() {
+        List<ProductResponse> products = productRepository.findByStatus(StatusEnum.Active).stream()
+                .map(productMapper::toProductResponse)
+                .sorted(Comparator.comparing(ProductResponse::getCreateDate).reversed())
+                .limit(10)
+                .collect(Collectors.toList());
+
+        return products;
+    }
 
 }

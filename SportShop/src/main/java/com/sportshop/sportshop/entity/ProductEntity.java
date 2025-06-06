@@ -49,6 +49,10 @@ public class ProductEntity {
     @Column(name = "status_product")
     StatusEnum status;
 
+    @Builder.Default
+    @Column(name = "quantity_sell")
+    Long quantitySell = 0L;
+
     @ManyToOne
     @JoinColumn(name = "category_id")
     CategoryEntity category;
@@ -59,4 +63,7 @@ public class ProductEntity {
 
     @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
     List<ImageEntity> images;
+
+    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
+    List<OrderDetailEntity> orderDetails;
 }

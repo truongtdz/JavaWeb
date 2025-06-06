@@ -2,6 +2,7 @@ package com.sportshop.sportshop.controller.web;
 
 import com.sportshop.sportshop.entity.CommentEntity;
 import com.sportshop.sportshop.entity.UserEntity;
+import com.sportshop.sportshop.enums.StatusEnum;
 import com.sportshop.sportshop.service.BrandService;
 import com.sportshop.sportshop.service.CartService;
 import com.sportshop.sportshop.service.CommentService;
@@ -39,7 +40,7 @@ public class WebController {
         ModelAndView mav = new ModelAndView("web/home");
 
         mav.addObject("brands", brandService.getAllBrand());
-        mav.addObject("products", productService.getAllProductsPaginated(0,10, "id", "asc"));
+        mav.addObject("products", productService.getAllProductsPaginated(0,10, "id", "asc", StatusEnum.Active));
         mav.addObject("productSales", productService.getProductSale());
         mav.addObject("productDates", productService.getProductNewest());
         mav.addObject("quantityProduct", productService.getProductNewest().size());

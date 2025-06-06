@@ -1,3 +1,62 @@
+// Sidebar functions
+function toggleProductMenu(event) {
+    console.log('Menu clicked!'); // Thêm dòng này để test
+    event.preventDefault();
+    const productMenu = document.querySelector('.product-menu');
+    const submenu = document.getElementById('productSubmenu');
+
+    productMenu.classList.toggle('active');
+    submenu.classList.toggle('active');
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function(event) {
+    const productMenu = document.querySelector('.product-menu');
+    const submenu = document.getElementById('productSubmenu');
+
+    if (!productMenu.contains(event.target)) {
+        productMenu.classList.remove('active');
+        submenu.classList.remove('active');
+    }
+});
+
+// Table
+// JavaScript thêm tooltip cho các cell bị cắt
+document.addEventListener('DOMContentLoaded', function() {
+    // Thêm tooltip cho các cell có nội dung dài
+    const tableCells = document.querySelectorAll('.table-container td');
+
+    tableCells.forEach(function(cell) {
+        // Bỏ qua cột thao tác (cột cuối)
+        if (cell.cellIndex === cell.parentNode.cells.length - 1) {
+            return;
+        }
+
+        // Kiểm tra nếu nội dung bị cắt
+        if (cell.scrollWidth > cell.clientWidth) {
+            cell.setAttribute('title', cell.textContent.trim());
+        }
+    });
+});
+
+function toggleProductView() {
+    const select = document.getElementById('productViewSelect');
+    const activeContainer = document.getElementById('activeProductsContainer');
+    const deletedContainer = document.getElementById('deletedProductsContainer');
+
+    if (select.value === 'active') {
+        activeContainer.classList.remove('hidden');
+        deletedContainer.classList.add('hidden');
+    } else {
+        activeContainer.classList.add('hidden');
+        deletedContainer.classList.remove('hidden');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    toggleProductView(); // Gọi lại để cập nhật hiển thị đúng sau khi load
+});
+
 // Modal functions
 function openCreateModal() {
     document.getElementById('createProductModal').classList.add('active');
@@ -39,19 +98,7 @@ document.addEventListener('keydown', function(event) {
     }
 });
 
-function toggleProductView() {
-    const select = document.getElementById('productViewSelect');
-    const activeContainer = document.getElementById('activeProductsContainer');
-    const deletedContainer = document.getElementById('deletedProductsContainer');
 
-    if (select.value === 'active') {
-        activeContainer.classList.remove('hidden');
-        deletedContainer.classList.add('hidden');
-    } else {
-        activeContainer.classList.add('hidden');
-        deletedContainer.classList.remove('hidden');
-    }
-}
 
 function sortDeletedTable(field) {
     // Logic tương tự sortTable nhưng cho deleted products
@@ -60,18 +107,18 @@ function sortDeletedTable(field) {
 }
 
 function restoreProduct(productId) {
-    if (confirm("Bạn có chắc chắn muốn xóa sản phẩm này?")) {
+    if (confirm("Bạn có chắc chắn muốn khôi phục sản phẩm này?")) {
             $.ajax({
                 url: "/admin/product/restore/" + productId,
                 type: "POST",
                 success: function (result) {
-                    showNotification("Xóa sản phẩm thành công!", "success");
+                    showNotification("Khôi phục sản phẩm thành công!", "success");
                     setTimeout(() => {
                         window.location.reload(); // Reload trang để cập nhật danh sách
                     }, 1000);
                 },
                 error: function (xhr, status, error) {
-                    let errorMessage = "Có lỗi xảy ra khi xóa sản phẩm!";
+                    let errorMessage = "Có lỗi xảy ra khi khôi phục sản phẩm!";
                     if (xhr.responseText) {
                         errorMessage = xhr.responseText;
                     }
@@ -315,8 +362,31 @@ function getNotificationColor(type) {
 }
 
 // Delete product function
-function deleteProduct(productId) {
+function softDeleteProduct(productId) {
     if (confirm("Bạn có chắc chắn muốn xóa sản phẩm này?")) {
+        $.ajax({
+            url: "/admin/product/delete/" + productId,
+            type: "PUT",
+            success: function (result) {
+                showNotification("Xóa sản phẩm thành công!", "success");
+                setTimeout(() => {
+                    window.location.reload(); // Reload trang để cập nhật danh sách
+                }, 1000);
+            },
+            error: function (xhr, status, error) {
+                let errorMessage = "Có lỗi xảy ra khi xóa sản phẩm!";
+                if (xhr.responseText) {
+                    errorMessage = xhr.responseText;
+                }
+                showNotification(errorMessage, "error");
+            }
+        });
+    }
+}
+
+// Delete product function
+function deleteProduct(productId) {
+    if (confirm("Bạn có chắc chắn muốn xóa vĩnh viễn sản phẩm này?")) {
         $.ajax({
             url: "/admin/product/delete/" + productId,
             type: "DELETE",

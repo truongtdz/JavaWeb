@@ -3,6 +3,7 @@ package com.sportshop.sportshop.controller.admin;
 import com.sportshop.sportshop.dto.request.ImageRequest;
 import com.sportshop.sportshop.dto.request.ProductRequest;
 import com.sportshop.sportshop.dto.response.ProductResponse;
+import com.sportshop.sportshop.enums.StatusEnum;
 import com.sportshop.sportshop.service.*;
 import com.sportshop.sportshop.utils.upload.ExcelProductHelper;
 import com.sportshop.sportshop.utils.upload.ProductExcelService;
@@ -40,10 +41,11 @@ public class ProductManagementController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "id") String sortField,
-            @RequestParam(defaultValue = "asc") String sortDir) {
+            @RequestParam(defaultValue = "asc") String sortDir
+    ) {
 
-        Page<ProductResponse> productPage = productService.getAllProductsPaginated(page, size, sortField, sortDir);
-        Page<ProductResponse> productsDeletedPage = productService.getAllProductsDeleted(page, size, sortField, sortDir);
+        Page<ProductResponse> productPage = productService.getAllProductsPaginated(page, size, sortField, sortDir, StatusEnum.Active);
+        Page<ProductResponse> productsDeletedPage = productService.getAllProductsPaginated(page, size, sortField, sortDir, StatusEnum.Closed);
         ModelAndView mav = new ModelAndView("/admin/product/management");
 
         mav.addObject("productPage", productPage);
@@ -122,7 +124,18 @@ public class ProductManagementController {
         return new ModelAndView("/admin/product/notification");
     }
 
-    //Delete product
+    @PutMapping("/delete/{productId}")
+    public ModelAndView softDeleteProduct(@PathVariable Long productId, Model model){
+        try{
+            productService.softDeleteProduct(productId);
+            model.addAttribute("notification", "Success");
+        } catch (Exception e) {
+            model.addAttribute("notification", "Fail");
+            model.addAttribute("message", e.getMessage());
+        }
+        return new ModelAndView("/admin/product/notification");
+    }
+
     @DeleteMapping("/delete/{productId}")
     public ModelAndView deleteProduct(@PathVariable Long productId, Model model){
         try{
@@ -135,7 +148,6 @@ public class ProductManagementController {
         return new ModelAndView("/admin/product/notification");
     }
 
-    // Add image
     @PostMapping("/add-image/{productId}")
     public String addImage(@PathVariable Long productId,
                            @RequestParam("file") MultipartFile file){
