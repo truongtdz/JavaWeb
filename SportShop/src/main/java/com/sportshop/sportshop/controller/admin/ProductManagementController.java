@@ -60,8 +60,8 @@ public class ProductManagementController {
         mav.addObject("reverseSortDir", sortDir.equals("asc") ? "desc" : "asc");
 
         mav.addObject("newProduct",  new ProductRequest());
-        mav.addObject("categories", categoryService.getAllCategory());
-        mav.addObject("brands", brandService.getAllBrand());
+        mav.addObject("categories", categoryService.getAllCategoriesPaginated(0,8, "id", "asc",null, StatusEnum.Active));
+        mav.addObject("brands", brandService.getAllPaginated(0,8, "id", "asc",null, StatusEnum.Active));
 
         return mav;
     }
@@ -90,7 +90,7 @@ public class ProductManagementController {
             model.addAttribute("notification", "Fail");
             model.addAttribute("message", e.getMessage());
         }
-        return new ModelAndView("/admin/product/notification");
+        return new ModelAndView("/admin/notification");
     }
 
     @GetMapping("/update/{productId}")
@@ -98,8 +98,8 @@ public class ProductManagementController {
         return new ModelAndView("/admin/product/update")
                 .addObject("product", productService.getProductById(productId))
                 .addObject("updateProduct", new ProductRequest())
-                .addObject("categories", categoryService.getAllCategory())
-                .addObject("brands", brandService.getAllBrand());
+                .addObject("categories", categoryService.getAllCategoriesPaginated(0,8, "id", "asc",null, StatusEnum.Active))
+                .addObject("brands", brandService.getAllPaginated(0,8, "id", "asc",null, StatusEnum.Active));
     }
 
     @PostMapping("/update/{productId}")
@@ -111,7 +111,7 @@ public class ProductManagementController {
             model.addAttribute("notification", "Fail");
             model.addAttribute("message", e.getMessage());
         }
-        return new ModelAndView("/admin/product/notification");
+        return new ModelAndView("/admin/notification");
     }
 
     @PostMapping("/restore/{productId}")
@@ -123,7 +123,7 @@ public class ProductManagementController {
             model.addAttribute("notification", "Fail");
             model.addAttribute("message", e.getMessage());
         }
-        return new ModelAndView("/admin/product/notification");
+        return new ModelAndView("/admin/notification");
     }
 
     @PutMapping("/delete/{productId}")
@@ -135,7 +135,7 @@ public class ProductManagementController {
             model.addAttribute("notification", "Fail");
             model.addAttribute("message", e.getMessage());
         }
-        return new ModelAndView("/admin/product/notification");
+        return new ModelAndView("/admin/notification");
     }
 
     @DeleteMapping("/delete/{productId}")
@@ -147,7 +147,7 @@ public class ProductManagementController {
             model.addAttribute("notification", "Fail");
             model.addAttribute("message", e.getMessage());
         }
-        return new ModelAndView("/admin/product/notification");
+        return new ModelAndView("/admin/notification");
     }
 
     @PostMapping("/add-image/{productId}")

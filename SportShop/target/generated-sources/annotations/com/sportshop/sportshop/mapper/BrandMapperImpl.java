@@ -1,5 +1,6 @@
 package com.sportshop.sportshop.mapper;
 
+import com.sportshop.sportshop.dto.request.BrandRequest;
 import com.sportshop.sportshop.dto.response.BrandResponse;
 import com.sportshop.sportshop.entity.BrandEntity;
 import com.sportshop.sportshop.entity.ProductEntity;
@@ -10,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-05-28T08:28:21+0700",
+    date = "2025-06-07T16:39:04+0700",
     comments = "version: 1.6.0, compiler: javac, environment: Java 21.0.2 (Oracle Corporation)"
 )
 @Component
@@ -33,5 +34,19 @@ public class BrandMapperImpl implements BrandMapper {
         }
 
         return brandResponse.build();
+    }
+
+    @Override
+    public BrandEntity toEntity(BrandRequest brandRequest) {
+        if ( brandRequest == null ) {
+            return null;
+        }
+
+        BrandEntity.BrandEntityBuilder brandEntity = BrandEntity.builder();
+
+        brandEntity.name( brandRequest.getName() );
+        brandEntity.image( brandRequest.getImage() );
+
+        return brandEntity.build();
     }
 }

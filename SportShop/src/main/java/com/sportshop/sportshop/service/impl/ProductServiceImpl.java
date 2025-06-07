@@ -82,17 +82,17 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductResponse createProduct(ProductRequest productRequest) {
         if(productRepository.existsByNameAndStatus(productRequest.getName(), StatusEnum.Active)){
-            throw new  AppException(ErrorCode.PRODUCT_EXISTED);
+            throw new  AppException(ErrorCode.ENTITY_EXIST);
         }
 
         ProductEntity newProduct = productMapper.toProductEntity(productRequest);
         newProduct.setCreateDate(new Date());
         newProduct.setStatus(StatusEnum.Active);
 
-        BrandEntity brand = brandRepository.getBrandById(productRequest.getBrandId());
+        BrandEntity brand = brandRepository.findByIdAndStatus(productRequest.getBrandId(), StatusEnum.Active);
         newProduct.setBrand(brand);
 
-        CategoryEntity category = categoryRepository.getCategoryById(productRequest.getCategoryId());
+        CategoryEntity category = categoryRepository.findByIdAndStatus(productRequest.getCategoryId(), StatusEnum.Active);
         newProduct.setCategory(category);
 
         return productMapper.toProductResponse(productRepository.save(newProduct));
@@ -101,7 +101,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductResponse updateProduct(Long productId, ProductRequest request) {
         if(productRepository.existsByNameAndStatus(request.getName(), StatusEnum.Active)){
-            throw new  AppException(ErrorCode.PRODUCT_EXISTED);
+            throw new  AppException(ErrorCode.ENTITY_EXIST);
         }
 
         ProductEntity updatedProduct = productRepository.findByIdAndStatus(productId, StatusEnum.Active);
@@ -133,12 +133,12 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductResponse restoreProduct(Long productId) {
+    public void restoreProduct(Long productId) {
         ProductEntity product = productRepository.findByIdAndStatus(productId, StatusEnum.Closed);
 
         product.setStatus(StatusEnum.Active);
 
-        return productMapper.toProductResponse(productRepository.save(product));
+        productRepository.save(product);
     }
 
     @Override

@@ -46,8 +46,8 @@ public class SearchController {
         ModelAndView mav = new ModelAndView("/web/search")
                 .addObject("newSearch", new SearchRequest())
                 .addObject("products", productService.getAllProductsPaginated(0,8, "id", "asc",null, StatusEnum.Active))
-                .addObject("categories", categoryService.getAllCategory())
-                .addObject("brands", brandService.getAllBrand())
+                .addObject("categories", categoryService.getAllCategoriesPaginated(0,8, "id", "asc",null, StatusEnum.Active))
+                .addObject("brands", brandService.getAllPaginated(0,8, "id", "asc",null, StatusEnum.Active))
                 .addObject("sorts", SortEnum.values());
         
         UserEntity user = getUserAuthentication.getUser();
@@ -69,8 +69,8 @@ public class SearchController {
         mav.addObject("products", productPage.getContent());
         mav.addObject("productPage", productPage);
         mav.addObject("newSearch", request);
-        mav.addObject("categories", categoryService.getAllCategory());
-        mav.addObject("brands", brandService.getAllBrand());
+        mav.addObject("categories", categoryService.getAllCategoriesPaginated(0,8, "id", "asc",null, StatusEnum.Active));
+        mav.addObject("brands", brandService.getAllPaginated(0,8, "id", "asc",null, StatusEnum.Active));
         mav.addObject("sorts", SortEnum.values());
 
         UserEntity user = getUserAuthentication.getUser();
@@ -94,8 +94,8 @@ public class SearchController {
                     .addObject("newSearch", new SearchRequest())
                     .addObject("productPage", productPage)
                     .addObject("products", productPage.getContent())
-                    .addObject("categories", categoryService.getAllCategory())
-                    .addObject("brands", brandService.getAllBrand())
+                    .addObject("categories", categoryService.getAllCategoriesPaginated(0,8, "id", "asc",null, StatusEnum.Active))
+                    .addObject("brands", brandService.getAllPaginated(0,8, "id", "asc",null, StatusEnum.Active))
                     .addObject("sorts", SortEnum.values());
             
             UserEntity user = getUserAuthentication.getUser();
@@ -121,8 +121,8 @@ public class SearchController {
                 .addObject("newSearch", new SearchRequest())
                 .addObject("productPage", productPage)
                 .addObject("products", productPage.getContent())
-                .addObject("categories", categoryService.getAllCategory())
-                .addObject("brands", brandService.getAllBrand())
+                .addObject("categories", categoryService.getAllCategoriesPaginated(0,8, "id", "asc",null, StatusEnum.Active))
+                .addObject("brands", brandService.getAllPaginated(0,8, "id", "asc",null, StatusEnum.Active))
                 .addObject("sorts", SortEnum.values());
         
         UserEntity user = getUserAuthentication.getUser();

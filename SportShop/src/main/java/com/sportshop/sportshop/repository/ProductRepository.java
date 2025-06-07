@@ -17,6 +17,10 @@ public interface ProductRepository extends JpaRepository<ProductEntity, Long>, P
 
     List<ProductEntity> findByStatus(StatusEnum status);
 
+    List<ProductEntity> findByCategoryId(Long categoryId);
+
+    List<ProductEntity> findByBrandId(Long brandId);
+
     boolean existsByIdAndStatus(Long id, StatusEnum status);
 
     ProductEntity findByNameAndStatus(String name, StatusEnum status);

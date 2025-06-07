@@ -39,7 +39,7 @@ public class WebController {
     public ModelAndView homePage() {
         ModelAndView mav = new ModelAndView("web/home");
 
-        mav.addObject("brands", brandService.getAllBrand());
+        mav.addObject("brands", brandService.getAllPaginated(0,8, "id", "asc", null, StatusEnum.Active));
         mav.addObject("products", productService.getAllProductsPaginated(0,10, "id", "asc", null, StatusEnum.Active));
         mav.addObject("productSales", productService.getProductSale());
         mav.addObject("productDates", productService.getProductNewest());
