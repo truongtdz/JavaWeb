@@ -51,6 +51,7 @@ public class CategoryManagementController {
         mav.addObject("reverseSortDir", sortDir.equals("asc") ? "desc" : "asc");
 
         mav.addObject("newCategory",  new CategoryRequest());
+        mav.addObject("updateCategory",  new CategoryRequest());
 
         return mav;
     }
@@ -69,17 +70,14 @@ public class CategoryManagementController {
         return new ModelAndView("/admin/notification");
     }
 
-    @GetMapping("/update/{categoryId}")
-    public ModelAndView updateCategory(@PathVariable Long categoryId){
-        return new ModelAndView("/admin/category/update")
-                .addObject("category", categoryService.getCategoryById(categoryId))
-                .addObject("updateCategory", new CategoryRequest());
-    }
-
     @PostMapping("/update/{categoryId}")
-    public ModelAndView updateCategory(@PathVariable Long categoryId, @ModelAttribute("updateCategory") CategoryRequest request, Model model){
+    public ModelAndView updateCategory(
+            @PathVariable Long categoryId,
+            @ModelAttribute("updateCategory") CategoryRequest request,
+            @RequestParam("updateFile") MultipartFile file,
+            Model model){
         try{
-            categoryService.updateCategory(categoryId, request);
+            categoryService.updateCategory(categoryId, request, file);
             model.addAttribute("notification", "Success");
         } catch (Exception e) {
             model.addAttribute("notification", "Fail");

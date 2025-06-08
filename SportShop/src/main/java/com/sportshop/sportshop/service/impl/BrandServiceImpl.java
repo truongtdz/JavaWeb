@@ -74,7 +74,7 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
-    public BrandResponse updateBrand(Long brandId, BrandRequest brandRequest) {
+    public BrandResponse updateBrand(Long brandId, BrandRequest brandRequest, MultipartFile file) {
         if(brandRepository.existsByNameAndStatus(brandRequest.getName(), StatusEnum.Active)){
             throw new AppException(ErrorCode.ENTITY_EXIST);
         }
@@ -83,6 +83,10 @@ public class BrandServiceImpl implements BrandService {
 
         if(brandRequest.getName() != null && !brandRequest.getName().isEmpty()){
             updatedBrand.setName(brandRequest.getName());
+        }
+
+        if(file != null && !file.isEmpty()){
+            updatedBrand.setImage(imageService.createImage(file));
         }
 
         brandRepository.save(updatedBrand);

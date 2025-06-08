@@ -5,6 +5,7 @@ import com.sportshop.sportshop.dto.response.CategoryResponse;
 import com.sportshop.sportshop.enums.StatusEnum;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
@@ -20,7 +21,7 @@ public interface CategoryService {
 
     CategoryResponse createCategory(CategoryRequest categoryRequest,  MultipartFile file);
 
-    CategoryResponse updateCategory(Long categoryId, CategoryRequest categoryRequest);
+    CategoryResponse updateCategory(Long categoryId, CategoryRequest categoryRequest, MultipartFile file);
 
     void softDeleteCategory(Long categoryId);
 

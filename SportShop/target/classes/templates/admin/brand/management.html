@@ -10,6 +10,39 @@
   />
   <link rel="stylesheet" th:href="@{/css/sidebar.css}" />
   <link rel="stylesheet" th:href="@{/css/productManagement.css}" />
+  <style>
+    /* CSS cho Update Modal - Thêm vào file CSS của bạn */
+
+.current-image-label,
+.new-image-label {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 4px 8px;
+  font-size: 11px;
+  text-align: center;
+  border-radius: 0 0 4px 4px;
+}
+
+.current-image-label {
+  background: rgba(0, 123, 255, 0.8);
+}
+
+.new-image-label {
+  background: rgba(40, 167, 69, 0.8);
+}
+
+.modal-preview-item.current-image {
+  border: 2px solid #007bff;
+}
+
+.modal-preview-item.new-image {
+  border: 2px solid #28a745;
+}
+  </style>
 </head>
 <body>
 <div class="container">
@@ -132,12 +165,13 @@
             <span th:if="${brand.image == null}" style="color: #666;">Không có ảnh</span>
           </td>
           <td>
-            <a
-                    class="action-btn btn btn-warning"
-                    th:href="@{'/admin/brand/update/' + ${brand.id}}"
-            >
+            <button type="button" class="action-btn btn btn-warning"
+                    th:data-id="${brand.id}"
+                    th:data-name="${brand.name}"
+                    th:data-image="${brand.image}"
+                    onclick="openUpdateModalFromData(this)">
               <i class="fas fa-edit"></i>
-            </a>
+            </button>
             <button
                     type="button"
                     class="action-btn btn-danger"
@@ -315,6 +349,80 @@
   </div>
 </div>
 
+<!-- Update Brand Modal - Thêm vào cuối body trước tag </body> -->
+<div id="updateBrandModal" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h2><i class="fas fa-edit"></i> Cập Nhật Thương Hiệu</h2>
+      <button class="modal-close" onclick="closeUpdateModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form
+              id="updateBrandForm"
+              method="POST"
+              enctype="multipart/form-data"
+      >
+        <div class="modal-form-grid">
+          <!-- Image Upload Section -->
+          <div class="modal-image-upload">
+            <h3 class="modal-section-title">
+              <i class="fas fa-images"></i> Ảnh thương hiệu
+            </h3>
+            <div class="modal-image-preview-container">
+              <div id="updateModalImagePreviewGrid" class="modal-image-preview-grid">
+                <!-- Preview images sẽ được thêm vào đây bằng JavaScript -->
+              </div>
+              <div class="modal-upload-container">
+                <input
+                        type="file"
+                        id="updateModalFiles"
+                        name="updateFile"
+                        accept="image/*"
+                        style="display: none"
+                        onchange="previewUpdateModalImages(event)"
+                />
+                <button
+                        type="button"
+                        class="modal-upload-btn"
+                        onclick="document.getElementById('updateModalFiles').click()"
+                >
+                  <i class="fas fa-upload"></i> Tải ảnh lên
+                </button>
+                <p style="font-size: 12px; color: #666; margin-top: 5px;">Chọn một ảnh mới (tùy chọn)</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Brand Info Section -->
+          <div class="modal-form-section">
+            <h3 class="modal-section-title">
+              <i class="fas fa-info-circle"></i> Thông tin thương hiệu
+            </h3>
+
+            <div class="modal-form-row">
+              <div class="modal-form-group">
+                <label><i class="fas fa-certificate"></i> Tên thương hiệu</label>
+                <input type="text" id="updateBrandName" name="name" required />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-form-actions">
+          <button type="button" class="modal-btn modal-btn-cancel" onclick="closeUpdateModal()">
+            <i class="fas fa-times"></i> Hủy
+          </button>
+          <button type="submit" class="modal-btn modal-btn-submit">
+            <i class="fas fa-save"></i> Cập nhật thương hiệu
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
   // Toggle between active and deleted brands
@@ -478,13 +586,13 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 
-// Close modal when clicking outside
 window.onclick = function(event) {
-  const modal = document.getElementById('createBrandModal');
-  if (event.target === modal) {
-      closeCreateModal();
-  }
-}
+  const createModal = document.getElementById('createBrandModal');
+  const updateModal = document.getElementById('updateBrandModal');
+  if (event.target === createModal) closeCreateModal();
+  if (event.target === updateModal) closeUpdateModal();
+};
+
 
   // Sidebar functions
 function toggleProductMenu(event) {
@@ -507,6 +615,124 @@ document.addEventListener('click', function(event) {
       submenu.classList.remove('active');
   }
 });
+function openUpdateModalFromData(button) {
+    const id = button.getAttribute('data-id');
+    const name = button.getAttribute('data-name');
+    const image = button.getAttribute('data-image');
+    openUpdateModal(id, name, image);
+}
+
+  // Update Modal functions - Thêm vào phần script
+function openUpdateModal(brandId, brandName, brandImage) {
+  const modal = document.getElementById('updateBrandModal');
+  const form = document.getElementById('updateBrandForm');
+  const nameInput = document.getElementById('updateBrandName');
+  const previewGrid = document.getElementById('updateModalImagePreviewGrid');
+
+  // Set form action
+  form.action = `/admin/brand/update/${brandId}`;
+
+  // Set current brand name
+  nameInput.value = brandName;
+
+  // Clear previous preview
+  previewGrid.innerHTML = '';
+
+  // Show current image if exists
+  if (brandImage && brandImage !== 'null') {
+    const imageContainer = document.createElement('div');
+    imageContainer.className = 'modal-preview-item current-image';
+
+    const img = document.createElement('img');
+    img.src = brandImage;
+    img.alt = 'Current Image';
+
+    const label = document.createElement('div');
+    label.className = 'current-image-label';
+    label.innerHTML = '<i class="fas fa-image"></i> Ảnh hiện tại';
+
+    imageContainer.appendChild(img);
+    imageContainer.appendChild(label);
+    previewGrid.appendChild(imageContainer);
+  }
+
+  // Show modal
+  modal.style.display = 'flex';
+  modal.classList.add('active');
+
+  // Focus vào modal
+  setTimeout(() => {
+    nameInput.focus();
+    nameInput.select();
+  }, 100);
+}
+
+function closeUpdateModal() {
+  const modal = document.getElementById('updateBrandModal');
+  modal.classList.remove('active');
+  setTimeout(() => {
+    modal.style.display = 'none';
+    document.getElementById('updateBrandForm').reset();
+    document.getElementById('updateModalImagePreviewGrid').innerHTML = '';
+    document.getElementById('updateModalFiles').value = '';
+  }, 300);
+}
+
+// Image preview for update modal
+function previewUpdateModalImages(event) {
+  const file = event.target.files[0];
+  const previewGrid = document.getElementById('updateModalImagePreviewGrid');
+
+  // Remove any previous new image preview, but keep current image
+  const newImagePreviews = previewGrid.querySelectorAll('.modal-preview-item:not(.current-image)');
+  newImagePreviews.forEach(item => item.remove());
+
+  if (file) {
+    const reader = new FileReader();
+
+    reader.onload = function(e) {
+      const imageContainer = document.createElement('div');
+      imageContainer.className = 'modal-preview-item new-image';
+
+      const img = document.createElement('img');
+      img.src = e.target.result;
+      img.alt = 'New Image Preview';
+
+      const removeBtn = document.createElement('button');
+      removeBtn.type = 'button';
+      removeBtn.className = 'modal-remove-btn';
+      removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+      removeBtn.onclick = function() {
+        imageContainer.remove();
+        document.getElementById('updateModalFiles').value = '';
+      };
+
+      const label = document.createElement('div');
+      label.className = 'new-image-label';
+      label.innerHTML = '<i class="fas fa-upload"></i> Ảnh mới';
+
+      imageContainer.appendChild(img);
+      imageContainer.appendChild(removeBtn);
+      imageContainer.appendChild(label);
+      previewGrid.appendChild(imageContainer);
+    };
+
+    reader.readAsDataURL(file);
+  }
+}
+
+// Close update modal when clicking outside
+window.onclick = function(event) {
+  const createModal = document.getElementById('createBrandModal');
+  const updateModal = document.getElementById('updateBrandModal');
+
+  if (event.target === createModal) {
+    closeCreateModal();
+  }
+  if (event.target === updateModal) {
+    closeUpdateModal();
+  }
+}
 </script>
 </body>
 </html>

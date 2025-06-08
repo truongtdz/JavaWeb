@@ -74,7 +74,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public CategoryResponse updateCategory(Long categoryId, CategoryRequest categoryRequest) {
+    public CategoryResponse updateCategory(Long categoryId, CategoryRequest categoryRequest, MultipartFile file) {
         if(categoryRepository.existsByNameAndStatus(categoryRequest.getName(), StatusEnum.Active)){
             throw new AppException(ErrorCode.ENTITY_EXIST);
         }
@@ -83,6 +83,10 @@ public class CategoryServiceImpl implements CategoryService {
 
         if(categoryRequest.getName() != null && !categoryRequest.getName().isEmpty()){
             updatedCategory.setName(categoryRequest.getName());
+        }
+
+        if(file != null && !file.isEmpty()){
+            updatedCategory.setImage(imageService.createImage(file));
         }
 
         categoryRepository.save(updatedCategory);

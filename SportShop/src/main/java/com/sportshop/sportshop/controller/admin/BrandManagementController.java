@@ -51,14 +51,17 @@ public class BrandManagementController {
         mav.addObject("reverseSortDir", sortDir.equals("asc") ? "desc" : "asc");
 
         mav.addObject("newBrand",  new BrandEntity());
+        mav.addObject("updateBrand",  new BrandEntity());
 
         return mav;
     }
 
     @PostMapping("/create")
-    public ModelAndView createBrand(@ModelAttribute("newBrand") BrandRequest request,
-                                       @RequestParam("file") MultipartFile file
-            ,Model model){
+    public ModelAndView createBrand(
+            @ModelAttribute("newBrand") BrandRequest request,
+            @RequestParam("file") MultipartFile file
+            ,Model model
+    ){
         try {
             BrandResponse brand = brandService.createBrand(request, file);
             model.addAttribute("notification", "Success");
@@ -69,17 +72,15 @@ public class BrandManagementController {
         return new ModelAndView("/admin/notification");
     }
 
-    @GetMapping("/update/{brandId}")
-    public ModelAndView updateBrand(@PathVariable Long brandId){
-        return new ModelAndView("/admin/brand/update")
-                .addObject("brand", brandService.getBrandById(brandId))
-                .addObject("updateBrand", new BrandRequest());
-    }
-
     @PostMapping("/update/{brandId}")
-    public ModelAndView updateBrand(@PathVariable Long brandId, @ModelAttribute("updateBrand") BrandRequest request, Model model){
+    public ModelAndView updateBrand(
+            @PathVariable Long brandId,
+            @ModelAttribute("updateBrand") BrandRequest request,
+            @RequestParam("updateFile") MultipartFile file,
+            Model model
+    ){
         try{
-            brandService.updateBrand(brandId, request);
+            brandService.updateBrand(brandId, request, file);
             model.addAttribute("notification", "Success");
         } catch (Exception e) {
             model.addAttribute("notification", "Fail");

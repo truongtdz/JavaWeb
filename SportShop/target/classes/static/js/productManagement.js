@@ -20,6 +20,24 @@ document.addEventListener('click', function(event) {
     }
 });
 
+
+// Hàm format giá thành VND (thủ công)
+function formatVND(price) {
+    // Kiểm tra nếu giá trị không hợp lệ
+    if (price === null || price === undefined || isNaN(price)) {
+        return '0 VND';
+    }
+
+    // Chuyển đổi thành số và làm tròn
+    const numPrice = Math.round(Number(price));
+
+    // Format thủ công với dấu chấm phân cách
+    const priceStr = numPrice.toString();
+    const formatted = priceStr.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
+    return formatted + ' VND';
+}
+
 // Table
 // JavaScript thêm tooltip cho các cell bị cắt
 document.addEventListener('DOMContentLoaded', function() {

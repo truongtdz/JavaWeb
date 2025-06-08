@@ -146,13 +146,13 @@
                     </th>
                     <th>
                         <a href="#" class="sortable-link" onclick="sortTable('price')">
-                            Giá
+                            Giá(VND)(VND)
                             <span id="sort-icon-price"></span>
                         </a>
                     </th>
                     <th>
                         <a href="#" class="sortable-link" onclick="sortTable('discount')">
-                            Giảm giá
+                            Giảm giá(%)
                             <span id="sort-icon-discount"></span>
                         </a>
                     </th>
@@ -178,7 +178,7 @@
                     <td th:text="${product.category.name}"></td>
                     <td th:text="${product.name}"></td>
                     <td th:text="${product.color}"></td>
-                    <td th:text="${product.price}"></td>
+                    <td th:text="${#numbers.formatInteger(product.price, 3, 'POINT')} + ' VND'"></td>
                     <td th:text="${product.discount}"></td>
                     <td th:text="${product.quantity}"></td>
                     <td th:text="${product.description}"></td>
@@ -268,14 +268,13 @@
                     </th>
                     <th>
                         <a href="#" class="sortable-link" onclick="sortDeletedTable('price')">
-                            Giá
+                            Giá(VND)
                             <span id="sort-price"></span>
                         </a>
                     </th>
                     <th>
                         <a href="#" class="sortable-link" onclick="sortDeletedTable('discount')">
-                            Giảm giá
-                            <span id="sort-discount"></span>
+                            Giảm giá(%)                          <span id="sort-discount"></span>
                         </a>
                     </th>
                     <th>
@@ -300,7 +299,7 @@
                     <td th:text="${productDeleted.category.name}"></td>
                     <td th:text="${productDeleted.name}"></td>
                     <td th:text="${productDeleted.color}"></td>
-                    <td th:text="${productDeleted.price}"></td>
+                    <td th:text="${#numbers.formatInteger(productDeleted.price, 3, 'POINT')} + ' VND'"></td>
                     <td th:text="${productDeleted.discount}"></td>
                     <td th:text="${productDeleted.quantity}"></td>
                     <td th:text="${productDeleted.description}"></td>
@@ -438,11 +437,11 @@
 
                         <div class="modal-form-row">
                             <div class="modal-form-group">
-                                <label><i class="fas fa-tag"></i> Giá</label>
+                                <label><i class="fas fa-tag"></i> Giá(VND)</label>
                                 <input type="number" th:field="*{price}" required />
                             </div>
                             <div class="modal-form-group">
-                                <label><i class="fas fa-percent"></i> Giảm giá</label>
+                                <label><i class="fas fa-percent"></i> Giảm giá(%)abel>
                                 <input type="number" th:field="*{discount}" required />
                             </div>
                         </div>

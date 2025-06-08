@@ -20,7 +20,7 @@ public interface BrandService {
 
     BrandResponse createBrand(BrandRequest brandRequest, MultipartFile file);
 
-    BrandResponse updateBrand(Long brandId, BrandRequest brandRequest);
+    BrandResponse updateBrand(Long brandId, BrandRequest brandRequest, MultipartFile file);
 
     void softDeleteBrand(Long brandId);
 
