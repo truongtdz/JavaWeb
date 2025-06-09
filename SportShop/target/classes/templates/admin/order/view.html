@@ -139,19 +139,19 @@
       }
 
       /* Image Styles */
-      .image {
+      .product-image {
         width: 80px;
         height: 80px;
-        border-radius: 10px;
+        border-radius: 8px;
         object-fit: cover;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        transition: all 0.3s ease;
-        cursor: pointer;
+        margin-right: 15px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
       }
 
-      .image:hover {
+      .product-image:hover {
         transform: scale(1.1);
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        cursor: pointer;
       }
 
       /* Modal Styles */
@@ -225,7 +225,7 @@
           font-size: 14px;
         }
 
-        .image {
+        .product-image {
           width: 60px;
           height: 60px;
         }
@@ -295,6 +295,43 @@
       .info-item:last-child {
         flex: 2; /* Cho phần địa chỉ rộng hơn */
       }
+
+      /* QR Code styles */
+      .qr-code-section {
+        text-align: center;
+        margin: 20px 0;
+        padding: 20px;
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
+
+      .qr-code-section img {
+        max-width: 200px;
+        margin-bottom: 10px;
+      }
+
+      .qr-code-section p {
+        color: #666;
+        margin-bottom: 10px;
+      }
+
+      @media print {
+        .no-print {
+          display: none !important;
+        }
+        body {
+          background: white;
+        }
+        .page-header {
+          background: none;
+          color: #000;
+          box-shadow: none;
+        }
+        .info-item {
+          box-shadow: none;
+        }
+      }
     </style>
   </head>
   <body>
@@ -304,7 +341,10 @@
         Chi Tiết Đơn Hàng
       </h1>
       <div class="d-flex gap-2">
-        <a href="/admin/order" class="btn btn-secondary btn-back">
+        <button onclick="window.print()" class="btn btn-primary no-print">
+          <i class="fas fa-print me-2"></i>In
+        </button>
+        <a href="/admin/order" class="btn btn-secondary btn-back no-print">
           <i class="fas fa-arrow-left me-2"></i>Quay Lại
         </a>
       </div>
@@ -340,9 +380,16 @@
               <i class="fa-solid fa-money-bill"></i>
               Tổng Tiền Đơn Hàng
             </div>
-            <div class="info-value" th:text="${order.total + '$'}"></div>
+            <div class="info-value" th:text="${order.total + ' VNĐ'}"></div>
           </div>
         </div>
+
+        <div class="qr-code-section">
+          <h5>Mã QR Đơn Hàng</h5>
+          <img th:src="'data:image/png;base64,' + ${qrCode}" alt="QR Code" />
+          <p>Quét mã QR để xem chi tiết đơn hàng</p>
+        </div>
+
         <h5>Người Mua & Địa Chỉ Nhận Hàng</h5>
         <div class="order-info">
           <div class="info-item">
@@ -371,6 +418,7 @@
         <table class="table table-hover">
           <thead>
             <tr>
+              <th>Hình Ảnh</th>
               <th>Mã SP</th>
               <th>Tên Sản Phẩm</th>
               <th>Đơn Giá</th>
@@ -382,6 +430,13 @@
           <tbody>
             <tr th:each="item : ${items}">
               <td>
+                <img th:if="${!item.product.images.empty}" 
+                     th:src="${item.product.images[0].imageLink}"
+                     class="product-image"
+                     th:onclick="'showImageModal(this)'"
+                     alt="Product Image" />
+              </td>
+              <td>
                 <span class="fw-bold text-primary">
                   <i class="fas fa-barcode me-1"></i>
                   <span th:text="${item.product.id}"></span>
@@ -389,8 +444,7 @@
               </td>
               <td th:text="${item.product.name}"></td>
               <td class="price-column">
-                <i class="fas fa-dollar-sign"></i>
-                <span th:text="${item.price + '$'}"></span>
+                <span th:text="${#numbers.formatDecimal(item.price, 0, 'COMMA', 0, 'POINT') + ' VNĐ'}"></span>
               </td>
               <td>
                 <span class="discount-badge" th:if="${item.discount > 0}">
@@ -405,8 +459,7 @@
                 </span>
               </td>
               <td class="total-price">
-                <i class="fas fa-dollar-sign"></i>
-                <span th:text="${item.total + '$'}"></span>
+                <span th:text="${#numbers.formatDecimal(item.total, 0, 'COMMA', 0, 'POINT') + ' VNĐ'}"></span>
               </td>
             </tr>
           </tbody>
@@ -430,7 +483,9 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
       function showImageModal(imgElement) {
-        document.getElementById("modalImage").src = imgElement.src;
+        var modal = new bootstrap.Modal(document.getElementById('imageModal'));
+        document.getElementById('modalImage').src = imgElement.src;
+        modal.show();
       }
     </script>
   </body>

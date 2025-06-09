@@ -11,8 +11,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-06-09T21:16:29+0700",
-    comments = "version: 1.6.0, compiler: javac, environment: Java 23.0.1 (Oracle Corporation)"
+    date = "2025-06-09T22:46:56+0700",
+    comments = "version: 1.6.0, compiler: Eclipse JDT (IDE) 3.42.0.v20250514-1000, environment: Java 21.0.7 (Eclipse Adoptium)"
 )
 @Component
 public class CategoryMapperImpl implements CategoryMapper {
@@ -26,8 +26,8 @@ public class CategoryMapperImpl implements CategoryMapper {
         CategoryResponse.CategoryResponseBuilder categoryResponse = CategoryResponse.builder();
 
         categoryResponse.id( category.getId() );
-        categoryResponse.name( category.getName() );
         categoryResponse.image( category.getImage() );
+        categoryResponse.name( category.getName() );
         List<ProductEntity> list = category.getProducts();
         if ( list != null ) {
             categoryResponse.products( new ArrayList<ProductEntity>( list ) );

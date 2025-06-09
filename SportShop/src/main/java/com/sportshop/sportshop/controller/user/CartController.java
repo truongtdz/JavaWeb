@@ -5,6 +5,7 @@ import com.sportshop.sportshop.dto.response.CartItemResponsePrint;
 import com.sportshop.sportshop.entity.CartEntity;
 import com.sportshop.sportshop.entity.UserEntity;
 import com.sportshop.sportshop.service.CartService;
+import com.sportshop.sportshop.service.OrderService;
 import com.sportshop.sportshop.service.QRCodeService;
 import com.sportshop.sportshop.utils.GetUserAuthentication;
 
@@ -26,6 +27,9 @@ public class CartController {
     private CartService cartService;
 
     @Autowired
+    private OrderService orderService;
+
+    @Autowired
     private GetUserAuthentication getUserAuthentication;
     @Autowired
     private QRCodeService qrCodeService;
@@ -33,10 +37,14 @@ public class CartController {
     @GetMapping("/{userId}")
     public ModelAndView getCart(@PathVariable Long userId){
         UserEntity user = getUserAuthentication.getUser();
+        
+        // Tạo đơn hàng mới
+        Long orderId = orderService.AddOrder(user);
 
         ModelAndView mav = new ModelAndView("/user/cart")
                 .addObject("carts", cartService.getCart(userId))
-                .addObject("user", user);
+                .addObject("user", user)
+                .addObject("orderId", orderId);
 
         return mav;
     }

@@ -11,8 +11,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-06-09T21:16:29+0700",
-    comments = "version: 1.6.0, compiler: javac, environment: Java 23.0.1 (Oracle Corporation)"
+    date = "2025-06-09T22:46:56+0700",
+    comments = "version: 1.6.0, compiler: Eclipse JDT (IDE) 3.42.0.v20250514-1000, environment: Java 21.0.7 (Eclipse Adoptium)"
 )
 @Component
 public class BrandMapperImpl implements BrandMapper {
@@ -26,8 +26,8 @@ public class BrandMapperImpl implements BrandMapper {
         BrandResponse.BrandResponseBuilder brandResponse = BrandResponse.builder();
 
         brandResponse.id( brandEntity.getId() );
-        brandResponse.name( brandEntity.getName() );
         brandResponse.image( brandEntity.getImage() );
+        brandResponse.name( brandEntity.getName() );
         List<ProductEntity> list = brandEntity.getProducts();
         if ( list != null ) {
             brandResponse.products( new ArrayList<ProductEntity>( list ) );
@@ -44,8 +44,8 @@ public class BrandMapperImpl implements BrandMapper {
 
         BrandEntity.BrandEntityBuilder brandEntity = BrandEntity.builder();
 
-        brandEntity.name( brandRequest.getName() );
         brandEntity.image( brandRequest.getImage() );
+        brandEntity.name( brandRequest.getName() );
 
         return brandEntity.build();
     }

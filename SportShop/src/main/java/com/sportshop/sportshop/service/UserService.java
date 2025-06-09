@@ -44,7 +44,10 @@ public interface UserService {
     public void deleteAddress(Long addressId);
 
     // Checkout 
-    public String checkout(Long userId, Long addressId);
+    public String checkout(Long orderId, Long addressId);
+
+    void updateOrderAddress(Long orderId, Long addressId);
+
     public UserEntity findByUserName(String username);
 
 }

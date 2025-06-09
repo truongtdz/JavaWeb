@@ -30,4 +30,12 @@ public class UserDetailServiceImpl implements UserDetailsService {
                 user.getPassword(),
                 Collections.singletonList(authority));
     }
+
+    public class CustomUserDetails {
+
+        public UserEntity getUser() {
+            // TODO Auto-generated method stub
+            throw new UnsupportedOperationException("Unimplemented method 'getUser'");
+        }
+    }
 }

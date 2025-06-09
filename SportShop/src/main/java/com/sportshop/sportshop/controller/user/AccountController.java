@@ -108,15 +108,14 @@ public class AccountController {
     }
 
     @GetMapping("/checkout/{addressId}")
-    public ModelAndView checkout(@PathVariable Long addressId, Model model){
+    public String checkout(@PathVariable Long addressId){
         UserEntity user = getUserAuthentication.getUser();
-
-        String message = userService.checkout(user.getId(), addressId);
-        model.addAttribute("message", message);
-
-        return new ModelAndView("/user/cart")
-                .addObject("carts", cartService.getCart(user.getId()))
-                .addObject("user", user);
+        
+        // Tạo đơn hàng mới
+        Long orderId = orderService.AddOrder(user);
+        
+        // Chuyển đến trang thanh toán
+        return "redirect:/payment?orderId=" + orderId + "&addressId=" + addressId;
     }
 
     @GetMapping("/history")

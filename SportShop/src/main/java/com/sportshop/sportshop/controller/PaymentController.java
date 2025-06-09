@@ -3,6 +3,7 @@ package com.sportshop.sportshop.controller;
 import com.sportshop.sportshop.service.OrderService;
 import com.sportshop.sportshop.service.PaymentService;
 import com.sportshop.sportshop.service.UserService;
+import com.sportshop.sportshop.enums.StatusOrderEnum;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -45,12 +46,20 @@ public class PaymentController {
 
             if ("COD".equals(paymentMethod)) {
                 // Cập nhật trạng thái đơn hàng là đã thanh toán COD
-                orderService.updateOrderStatusToCOD(orderId);
+                orderService.updateStatusOrder(orderId, StatusOrderEnum.Dang_Xu_Ly);
                 return "redirect:/user/history";
             } else if ("VNPAY".equals(paymentMethod)) {
+                // Hoàn tất đơn hàng trước để có thông tin tổng tiền
+                userService.checkout(orderId, addressId);
+                
+                // Lấy thông tin đơn hàng sau khi đã cập nhật
+                Long amount = orderService.getOrderById(orderId).getTotal();
+                if (amount == null || amount <= 0) {
+                    throw new RuntimeException("Invalid order amount");
+                }
+                
                 // Tạo URL thanh toán VNPay
                 String orderInfo = "Thanh toan don hang " + orderId;
-                Long amount = orderService.getOrderById(orderId).getTotal();
                 String paymentUrl = paymentService.createPaymentUrl(orderId, amount, orderInfo, request);
                 return "redirect:" + paymentUrl;
             }

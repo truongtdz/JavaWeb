@@ -211,16 +211,24 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public void updateOrderAddress(Long orderId, Long addressId) {
+        OrderEntity order = orderRepository.findById(orderId).orElseThrow();
+        AddressEntity address = addressRepository.findById(addressId).orElseThrow();
+        order.setAddress(address.getAddress());
+        order.setPhone(address.getPhone());
+        orderRepository.save(order);
+    }
+
+    @Override
     @Transactional
-    public String checkout(Long userId, Long addressId){
-        OrderEntity newOrder = new OrderEntity();
-
-        UserEntity user = userRepository.findByIdAndStatus(userId, StatusEnum.Active);
-
+    public String checkout(Long orderId, Long addressId) {
+        OrderEntity order = orderRepository.findById(orderId).orElseThrow();
+        UserEntity user = order.getUser();
         AddressEntity address = addressRepository.findById(addressId).get();
-        List<OrderDetailEntity> orderDetails = new ArrayList<>();
 
+        List<OrderDetailEntity> orderDetails = new ArrayList<>();
         Long totalOrder = 0L;
+
         for(CartEntity cart : user.getCarts()){
             OrderDetailEntity item = new OrderDetailEntity();
 
@@ -229,7 +237,7 @@ public class UserServiceImpl implements UserService {
             item.setPrice(cart.getProduct().getPrice());
             item.setDiscount(cart.getProduct().getDiscount());
             item.setTotal(cart.getProduct().getPrice() * (100 - cart.getProduct().getDiscount()) * cart.getQuantity() / 100);
-            item.setOrder(newOrder);
+            item.setOrder(order);
 
             totalOrder += item.getTotal();
 
@@ -238,21 +246,21 @@ public class UserServiceImpl implements UserService {
             
             ProductEntity product = cart.getProduct();
             product.setQuantity(product.getQuantity() - cart.getQuantity());
-            product.setQuantitySell(product.getQuantitySell() + cart.getQuantity());
+            Long currentQuantitySell = product.getQuantitySell() != null ? product.getQuantitySell() : 0L;
+            product.setQuantitySell(currentQuantitySell + cart.getQuantity());
             productRepository.save(product);
         }
 
-        newOrder.setUser(user);
-        newOrder.setTotal(totalOrder);
-        newOrder.setQuantity(Long.valueOf(orderDetails.size()));
-        newOrder.setDate(new Date());
-        newOrder.setAddress(address.getAddress());
-        newOrder.setPhone(address.getPhone());
-        newOrder.setStatus(StatusOrderEnum.Dang_Xu_Ly);
+        order.setTotal(totalOrder);
+        order.setQuantity(Long.valueOf(orderDetails.size()));
+        order.setDate(new Date());
+        order.setAddress(address.getAddress());
+        order.setPhone(address.getPhone());
+        order.setStatus(StatusOrderEnum.Dang_Xu_Ly);
 
-        orderRepository.save(newOrder);
+        orderRepository.save(order);
 
-        cartRepository.deleteByUserId(userId);
+        cartRepository.deleteByUserId(user.getId());
 
         return "Sản phẩm đang được chuẩn bị để giao, Xem chi tiết tại lịch sử mua hàng";
     }

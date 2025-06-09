@@ -11,8 +11,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-06-09T21:16:28+0700",
-    comments = "version: 1.6.0, compiler: javac, environment: Java 23.0.1 (Oracle Corporation)"
+    date = "2025-06-09T22:46:56+0700",
+    comments = "version: 1.6.0, compiler: Eclipse JDT (IDE) 3.42.0.v20250514-1000, environment: Java 21.0.7 (Eclipse Adoptium)"
 )
 @Component
 public class ProductMapperImpl implements ProductMapper {
@@ -25,21 +25,21 @@ public class ProductMapperImpl implements ProductMapper {
 
         ProductResponse.ProductResponseBuilder productResponse = ProductResponse.builder();
 
-        productResponse.id( productEntity.getId() );
-        productResponse.name( productEntity.getName() );
-        productResponse.price( productEntity.getPrice() );
-        productResponse.discount( productEntity.getDiscount() );
-        productResponse.description( productEntity.getDescription() );
-        productResponse.color( productEntity.getColor() );
-        productResponse.quantity( productEntity.getQuantity() );
-        productResponse.createDate( productEntity.getCreateDate() );
-        productResponse.updateDate( productEntity.getUpdateDate() );
-        productResponse.category( productEntity.getCategory() );
         productResponse.brand( productEntity.getBrand() );
+        productResponse.category( productEntity.getCategory() );
+        productResponse.color( productEntity.getColor() );
+        productResponse.createDate( productEntity.getCreateDate() );
+        productResponse.description( productEntity.getDescription() );
+        productResponse.discount( productEntity.getDiscount() );
+        productResponse.id( productEntity.getId() );
         List<ImageEntity> list = productEntity.getImages();
         if ( list != null ) {
             productResponse.images( new ArrayList<ImageEntity>( list ) );
         }
+        productResponse.name( productEntity.getName() );
+        productResponse.price( productEntity.getPrice() );
+        productResponse.quantity( productEntity.getQuantity() );
+        productResponse.updateDate( productEntity.getUpdateDate() );
 
         return productResponse.build();
     }
@@ -52,14 +52,14 @@ public class ProductMapperImpl implements ProductMapper {
 
         ProductEntity.ProductEntityBuilder productEntity = ProductEntity.builder();
 
+        productEntity.color( productRequest.getColor() );
+        productEntity.createDate( productRequest.getCreateDate() );
+        productEntity.description( productRequest.getDescription() );
+        productEntity.discount( productRequest.getDiscount() );
         productEntity.id( productRequest.getId() );
         productEntity.name( productRequest.getName() );
         productEntity.price( productRequest.getPrice() );
-        productEntity.discount( productRequest.getDiscount() );
-        productEntity.description( productRequest.getDescription() );
-        productEntity.color( productRequest.getColor() );
         productEntity.quantity( productRequest.getQuantity() );
-        productEntity.createDate( productRequest.getCreateDate() );
         productEntity.updateDate( productRequest.getUpdateDate() );
 
         return productEntity.build();
@@ -71,14 +71,14 @@ public class ProductMapperImpl implements ProductMapper {
             return;
         }
 
+        productEntity.setColor( productRequest.getColor() );
+        productEntity.setCreateDate( productRequest.getCreateDate() );
+        productEntity.setDescription( productRequest.getDescription() );
+        productEntity.setDiscount( productRequest.getDiscount() );
         productEntity.setId( productRequest.getId() );
         productEntity.setName( productRequest.getName() );
         productEntity.setPrice( productRequest.getPrice() );
-        productEntity.setDiscount( productRequest.getDiscount() );
-        productEntity.setDescription( productRequest.getDescription() );
-        productEntity.setColor( productRequest.getColor() );
         productEntity.setQuantity( productRequest.getQuantity() );
-        productEntity.setCreateDate( productRequest.getCreateDate() );
         productEntity.setUpdateDate( productRequest.getUpdateDate() );
     }
 }
