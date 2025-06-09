@@ -256,4 +256,8 @@ public class UserServiceImpl implements UserService {
 
         return "Sản phẩm đang được chuẩn bị để giao, Xem chi tiết tại lịch sử mua hàng";
     }
+    @Override
+    public UserEntity  findByUserName(String username) {
+        return userRepository.findByUsername(username);
+    }
 }

@@ -45,4 +45,6 @@ public interface UserService {
 
     // Checkout 
     public String checkout(Long userId, Long addressId);
+    public UserEntity findByUserName(String username);
+
 }

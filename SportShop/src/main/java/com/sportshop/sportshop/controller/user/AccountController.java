@@ -1,5 +1,6 @@
 package com.sportshop.sportshop.controller.user;
 
+import com.sportshop.sportshop.service.QRCodeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,19 +38,45 @@ public class AccountController {
     @Autowired
     private OrderService orderService;
 
+    @Autowired
+    private QRCodeService qrCodeService;
     @GetMapping("/info")
-    public ModelAndView viewUser(){
-        ModelAndView mav =  new ModelAndView("/user/information")
+    public ModelAndView viewUser(@RequestParam(required = false) Long id) {
+//        UserEntity user = getUserAuthentication.getUser();
+//
+//        String userData = "Họ tên: " + user.getFullName() + "\n" +
+//                "Email: " + user.getEmail() + "\n" +
+//                "SĐT: " + user.getPhone() + "\n" +
+//                "Giới tính: " + user.getGender();
+//
+//        String qrCode = qrCodeService.generateQRCodeBase64(userData, 200, 200);
+
+
+        UserEntity user = getUserAuthentication.getUser();
+        String qrLink = "http://localhost:8080/user/qr-info/" + user.getUsername();
+        String qrCode = qrCodeService.generateQRCodeBase64(qrLink, 200, 200);
+
+
+        ModelAndView mav = new ModelAndView("/user/information")
                 .addObject("genders", GenderEnum.values())
                 .addObject("updateUser", new CreateUserRequest())
-                .addObject("newAddress", new AddressRequest());
-        
-        UserEntity user = getUserAuthentication.getUser();
-        if(user != null){
+                .addObject("newAddress", new AddressRequest())
+                .addObject("qrCode", qrCode);
+
+        if (user != null) {
             mav.addObject("user", user);
         }
 
         return mav;
+    }
+    @GetMapping("/qr-info/{username}")
+    public ModelAndView viewUserInfoFromQR(@PathVariable String username) {
+        UserEntity user = userService.findByUserName(username);
+        if (user == null) {
+            return new ModelAndView("error").addObject("message", "Người dùng không tồn tại.");
+        }
+
+        return new ModelAndView("/user/qr-info").addObject("user", user);
     }
 
     @PostMapping("/update")
