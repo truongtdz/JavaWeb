@@ -10,7 +10,7 @@ import org.springframework.web.servlet.ModelAndView;
 import com.sportshop.sportshop.enums.StatusOrderEnum;
 import com.sportshop.sportshop.service.OrderDetailService;
 import com.sportshop.sportshop.service.OrderService;
-
+import com.sportshop.sportshop.service.QRCodeService;
 
 @Controller
 @RequestMapping("/admin/order")
@@ -21,6 +21,8 @@ public class OrderManagementController {
     @Autowired
     private OrderDetailService orderDetailService;
 
+    @Autowired
+    private QRCodeService qrCodeService;
 
     @GetMapping()
     public ModelAndView orderManagement(){
@@ -31,9 +33,13 @@ public class OrderManagementController {
 
     @GetMapping("/{orderId}")
     public ModelAndView getOrderById(@PathVariable Long orderId){
+        String orderUrl = "http://localhost:8080/order/" + orderId;
+        String qrCode = qrCodeService.generateQRCodeBase64(orderUrl, 200, 200);
+        
         return new ModelAndView("/admin/order/view")
                 .addObject("order", orderService.getOrderById(orderId))
-                .addObject("items", orderDetailService.getItemByOrderId(orderId));
+                .addObject("items", orderDetailService.getItemByOrderId(orderId))
+                .addObject("qrCode", qrCode);
     }
 
     @GetMapping("/{orderId}/{status}")
@@ -42,5 +48,4 @@ public class OrderManagementController {
         orderService.updateStatusOrder(orderId, status);
         return "redirect:/admin/order";
     }
-    
 }
