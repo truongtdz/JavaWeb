@@ -42,7 +42,7 @@ public class OrderServiceImpl implements OrderService{
     public Long getIncrease(){
         return orderRepository.findAll()
                        .stream()
-                       .mapToLong(order -> order.getTotal())
+                       .mapToLong(order -> order.getTotal() != null ? order.getTotal() : 0L)
                        .sum();
     }
 
@@ -51,6 +51,10 @@ public class OrderServiceImpl implements OrderService{
         List<OrderResponse> result = new ArrayList<>();
 
         for(OrderEntity order : orderRepository.findAll()){
+            if (order.getTotal() == null) {
+                order.setTotal(0L);
+                orderRepository.save(order);
+            }
             result.add(orderMapper.toOrderResponse(order));
         }
         return result;
@@ -58,20 +62,27 @@ public class OrderServiceImpl implements OrderService{
 
     @Override
     public OrderResponse getOrderById(Long orderId) {
-        return orderMapper.toOrderResponse(orderRepository.findById(orderId).get());
+        OrderEntity order = orderRepository.findById(orderId).get();
+        if (order.getTotal() == null) {
+            order.setTotal(0L);
+            orderRepository.save(order);
+        }
+        return orderMapper.toOrderResponse(order);
     }
 
     @Override
     public Long AddOrder(UserEntity user) {
-
         OrderEntity order = new OrderEntity();
 
         order.setDate(new Date());
         order.setUser(user);
+        order.setTotal(0L);
+        order.setQuantity(0L);
+        order.setStatus(StatusOrderEnum.Dang_Xu_Ly);
 
         orderRepository.save(order);
 
-        return  order.getId();
+        return order.getId();
     }
 
     @Override
