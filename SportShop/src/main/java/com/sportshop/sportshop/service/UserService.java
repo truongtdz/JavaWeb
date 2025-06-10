@@ -49,4 +49,5 @@ public interface UserService {
     void updateOrderAddress(Long orderId, Long addressId);
 
     public UserEntity findByUserName(String username);
+
 }
