@@ -250,7 +250,6 @@ public class UserServiceImpl implements UserService {
             product.setQuantitySell(currentQuantitySell + cart.getQuantity());
             productRepository.save(product);
         }
-
         order.setTotal(totalOrder);
         order.setQuantity(Long.valueOf(orderDetails.size()));
         order.setDate(new Date());
