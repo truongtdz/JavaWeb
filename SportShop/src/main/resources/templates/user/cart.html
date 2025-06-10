@@ -439,6 +439,46 @@
     </style>
   </head>
   <body>
+  <!-- Modal -->
+  <div class="modal fade" id="printCartModal" tabindex="-1" role="dialog" aria-labelledby="printCartModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+      <div class="modal-content shadow-lg rounded">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title font-weight-bold" id="printCartModalLabel">Thông tin giỏ hàng</h5>
+          <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+
+        <div class="modal-body px-4">
+          <div id="print-cart-items" class="row"></div>
+          <hr>
+          <!--          <div style="text-align: right; font-weight: bold; font-size: 18px;">-->
+          <!--            Tổng tiền:-->
+          <!--            <span style="color: #e11d48;" th:text="${#numbers.formatDecimal(totalAmount, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></span>-->
+          <!--          </div>-->
+
+        </div>
+
+        <div class="modal-footer d-flex justify-content-between align-items-center">
+          <!-- QR Code bên trái -->
+          <div class="d-flex align-items-center">
+            <div id="qrcode-print" class="mt-2 ml-3"></div>
+          </div>
+
+          <!-- Các nút bên phải -->
+          <div class="d-flex align-items-center">
+            <button class="btn btn-secondary mr-2" data-dismiss="modal">Đóng</button>
+            <button class="btn btn-primary" onclick="triggerPrint()">In</button>
+          </div>
+        </div>
+
+
+      </div>
+    </div>
+  </div>
+  </div>
+
     <!-- Thêm modal chọn địa chỉ vào trước thẻ đóng body -->
     <div
       class="modal fade"
@@ -536,9 +576,15 @@
     <!-- Cart Content -->
     <div class="container">
       <div class="cart-container">
-        <h2 class="cart-title">
-          <i class="fas fa-shopping-cart"></i> Giỏ Hàng
-        </h2>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <h2 class="cart-title">
+            <i class="fas fa-shopping-cart"></i> Giỏ Hàng
+          </h2>
+          <button class="btn btn-outline-secondary btn-sm" onclick="fetchCartDataForPrint()">
+            🖨️ In Giỏ Hàng
+          </button>
+        </div>
+
 
         <!-- Notification -->
         <div class="notification" th:if="${notification}">
@@ -620,7 +666,7 @@
                 </div>
               </div>
               <div class="col-md-1">
-                <p class="product-price" 
+                <p class="product-price"
                    th:text="${#numbers.formatDecimal((cart.product.price * (100 - cart.product.discount) / 100) * cart.quantity, 0, 'COMMA', 0, 'POINT') + ' VNĐ'}">
                   Total
                 </p>
@@ -680,6 +726,72 @@
 
         // Chuyển đến trang thanh toán với địa chỉ đã chọn
         window.location.href = `/user/checkout/${selectedAddress.value}`;
+      }
+      function fetchCartDataForPrint() {
+        fetch('/user/cart/print')
+                .then(res => res.json())
+                .then(data => {
+                  const container = document.getElementById("print-cart-items");
+                  container.innerHTML = "";
+
+                  data.forEach(item => {
+                    const html = `
+            <div class="col-md-6 mb-3">
+              <div class="border rounded p-3 d-flex align-items-center">
+                <img src="${item.image || '/images/default.jpg'}" class="img-thumbnail mr-3" style="width: 80px; height: 80px; object-fit: cover;">
+                <div>
+                  <h6 class="font-weight-bold mb-1">${item.productName}</h6>
+                  <p class="mb-1">Số lượng: <strong>${item.quantity}</strong></p>
+                  <p class="mb-0 text-danger">Đơn giá: ${item.price.toLocaleString()}₫</p>
+                </div>
+              </div>
+            </div>
+          `;
+                    container.insertAdjacentHTML('beforeend', html);
+                  });
+
+                  // Gọi thêm QR code từ backend
+                  fetch('/user/cart/qr')
+                          .then(res => res.json())
+                          .then(data => {
+                            const qrDiv = document.getElementById('qrcode-print');
+                            qrDiv.innerHTML = `
+      <img src="data:image/png;base64,${data.qrCode}"
+           alt="QR Code"
+           style="width: 120px; height: 120px; border: 1px solid #ccc; border-radius: 6px;" />
+    `;
+                          });
+
+                  $('#printCartModal').modal('show');
+                })
+                .catch(err => {
+                  alert("Không thể tải giỏ hàng.");
+                  console.error(err);
+                });
+      }
+
+      function triggerPrint() {
+        const content = document.querySelector('#print-cart-items').innerHTML;
+        const win = window.open('', '_blank');
+        win.document.write(`
+    <html>
+      <head>
+        <title>In Giỏ Hàng</title>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+      </head>
+      <body>
+        <div class="container mt-4">
+          <h4 class="text-center mb-4">THÔNG TIN GIỎ HÀNG</h4>
+          <div class="row">
+            ${content}
+          </div>
+        </div>
+      </body>
+    </html>
+  `);
+        win.document.close();
+        win.focus();
+        win.print();
       }
     </script>
   </body>
