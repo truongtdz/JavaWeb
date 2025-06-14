@@ -7,8 +7,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-06-10T08:23:26+0700",
-    comments = "version: 1.6.0, compiler: Eclipse JDT (IDE) 3.42.0.v20250514-1000, environment: Java 21.0.7 (Eclipse Adoptium)"
+    date = "2025-06-10T11:25:38+0700",
+    comments = "version: 1.6.0, compiler: javac, environment: Java 23.0.1 (Oracle Corporation)"
 )
 @Component
 public class OrderDetailMapperImpl implements OrderDetailMapper {
@@ -21,13 +21,13 @@ public class OrderDetailMapperImpl implements OrderDetailMapper {
 
         OrderDetailResponse.OrderDetailResponseBuilder orderDetailResponse = OrderDetailResponse.builder();
 
-        orderDetailResponse.discount( order.getDiscount() );
         orderDetailResponse.id( order.getId() );
-        orderDetailResponse.order( order.getOrder() );
-        orderDetailResponse.price( order.getPrice() );
-        orderDetailResponse.product( order.getProduct() );
         orderDetailResponse.quantity( order.getQuantity() );
+        orderDetailResponse.price( order.getPrice() );
+        orderDetailResponse.discount( order.getDiscount() );
         orderDetailResponse.total( order.getTotal() );
+        orderDetailResponse.order( order.getOrder() );
+        orderDetailResponse.product( order.getProduct() );
 
         return orderDetailResponse.build();
     }

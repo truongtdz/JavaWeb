@@ -13,8 +13,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-06-10T08:23:29+0700",
-    comments = "version: 1.6.0, compiler: Eclipse JDT (IDE) 3.42.0.v20250514-1000, environment: Java 21.0.7 (Eclipse Adoptium)"
+    date = "2025-06-10T11:25:37+0700",
+    comments = "version: 1.6.0, compiler: javac, environment: Java 23.0.1 (Oracle Corporation)"
 )
 @Component
 public class UserMapperImpl implements UserMapper {
@@ -27,28 +27,28 @@ public class UserMapperImpl implements UserMapper {
 
         UserResponse.UserResponseBuilder userResponse = UserResponse.builder();
 
-        List<AddressEntity> list = userEntity.getAddresses();
-        if ( list != null ) {
-            userResponse.addresses( new ArrayList<AddressEntity>( list ) );
-        }
-        userResponse.avatar( userEntity.getAvatar() );
-        List<CartEntity> list1 = userEntity.getCarts();
-        if ( list1 != null ) {
-            userResponse.carts( new ArrayList<CartEntity>( list1 ) );
-        }
-        userResponse.createDate( userEntity.getCreateDate() );
-        userResponse.email( userEntity.getEmail() );
+        userResponse.id( userEntity.getId() );
+        userResponse.username( userEntity.getUsername() );
+        userResponse.password( userEntity.getPassword() );
         userResponse.fullName( userEntity.getFullName() );
         userResponse.gender( userEntity.getGender() );
-        userResponse.id( userEntity.getId() );
-        userResponse.password( userEntity.getPassword() );
         userResponse.phone( userEntity.getPhone() );
+        userResponse.email( userEntity.getEmail() );
+        userResponse.avatar( userEntity.getAvatar() );
+        userResponse.createDate( userEntity.getCreateDate() );
+        userResponse.updateDate( userEntity.getUpdateDate() );
         if ( userEntity.getRoles() != null ) {
             userResponse.roles( userEntity.getRoles().name() );
         }
         userResponse.status( userEntity.getStatus() );
-        userResponse.updateDate( userEntity.getUpdateDate() );
-        userResponse.username( userEntity.getUsername() );
+        List<CartEntity> list = userEntity.getCarts();
+        if ( list != null ) {
+            userResponse.carts( new ArrayList<CartEntity>( list ) );
+        }
+        List<AddressEntity> list1 = userEntity.getAddresses();
+        if ( list1 != null ) {
+            userResponse.addresses( new ArrayList<AddressEntity>( list1 ) );
+        }
 
         return userResponse.build();
     }
@@ -61,13 +61,13 @@ public class UserMapperImpl implements UserMapper {
 
         UserEntity.UserEntityBuilder userEntity = UserEntity.builder();
 
-        userEntity.avatar( newUser.getAvatar() );
-        userEntity.email( newUser.getEmail() );
+        userEntity.username( newUser.getUsername() );
+        userEntity.password( newUser.getPassword() );
         userEntity.fullName( newUser.getFullName() );
         userEntity.gender( newUser.getGender() );
-        userEntity.password( newUser.getPassword() );
         userEntity.phone( newUser.getPhone() );
-        userEntity.username( newUser.getUsername() );
+        userEntity.email( newUser.getEmail() );
+        userEntity.avatar( newUser.getAvatar() );
 
         return userEntity.build();
     }
@@ -78,11 +78,11 @@ public class UserMapperImpl implements UserMapper {
             return;
         }
 
-        userEntity.setAvatar( updateUserRequest.getAvatar() );
-        userEntity.setEmail( updateUserRequest.getEmail() );
+        userEntity.setPassword( updateUserRequest.getPassword() );
         userEntity.setFullName( updateUserRequest.getFullName() );
         userEntity.setGender( updateUserRequest.getGender() );
-        userEntity.setPassword( updateUserRequest.getPassword() );
         userEntity.setPhone( updateUserRequest.getPhone() );
+        userEntity.setEmail( updateUserRequest.getEmail() );
+        userEntity.setAvatar( updateUserRequest.getAvatar() );
     }
 }

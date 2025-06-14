@@ -16,7 +16,7 @@ public class QRCodeService {
     
     public String generateQRCodeBase64(String text, int width, int height) {
         try {
-            QRCodeWriter qrCodeWriter = new QRCodeWriter();
+            QRCodeWriter  qrCodeWriter = new QRCodeWriter();
             BitMatrix bitMatrix = qrCodeWriter.encode(text, BarcodeFormat.QR_CODE, width, height);
             
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
